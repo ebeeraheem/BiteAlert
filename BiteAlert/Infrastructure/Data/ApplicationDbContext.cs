@@ -28,6 +28,12 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
     {
         base.OnModelCreating(builder);
 
+        // Store customers and vendors in separate tables
+        builder.Entity<Customer>()
+            .ToTable("Customers");
+        builder.Entity<Vendor>()
+            .ToTable("Vendors");
+
         builder.Entity<Product>()
             .Property(p => p.Price)
             .HasColumnType("decimal(18,2)");
