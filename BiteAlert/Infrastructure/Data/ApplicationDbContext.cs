@@ -7,6 +7,7 @@ using BiteAlert.Modules.ReviewModule;
 using BiteAlert.Modules.VendorModule;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using System.Reflection.Emit;
 
 namespace BiteAlert.Infrastructure.Data;
 
@@ -22,4 +23,39 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
     public DbSet<Like> Likes { get; set; }
     public DbSet<Review> Reviews { get; set; }
     public DbSet<Notification> Notifications { get; set; }
+
+    protected override void OnModelCreating(ModelBuilder builder)
+    {
+        base.OnModelCreating(builder);
+
+        builder.Entity<Product>()
+            .Property(p => p.Price)
+            .HasColumnType("decimal(18,2)");
+
+        // Configure entities to have sequential IDs on add
+        builder.Entity<ApplicationUser>()
+            .Property(a => a.Id)
+            .ValueGeneratedOnAdd()
+            .HasDefaultValueSql("NEWSEQUENTIALID()");
+
+        builder.Entity<Product>()
+            .Property(p => p.Id)
+            .ValueGeneratedOnAdd()
+            .HasDefaultValueSql("NEWSEQUENTIALID()");
+
+        builder.Entity<Like>()
+            .Property(l => l.Id)
+            .ValueGeneratedOnAdd()
+            .HasDefaultValueSql("NEWSEQUENTIALID()");
+
+        builder.Entity<Review>()
+            .Property(r => r.Id)
+            .ValueGeneratedOnAdd()
+            .HasDefaultValueSql("NEWSEQUENTIALID()");
+
+        builder.Entity<Notification>()
+            .Property(n => n.Id)
+            .ValueGeneratedOnAdd()
+            .HasDefaultValueSql("NEWSEQUENTIALID()");
+    }
 }

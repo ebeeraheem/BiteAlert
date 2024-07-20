@@ -12,7 +12,7 @@ public class Product
     public decimal Price { get; set; }
     public string ImageUrl { get; set; } = string.Empty;
     public bool IsAvailable { get; set; }
-    public Guid VendorId { get; set; }
+    public string VendorId { get; set; } = string.Empty;
     public Vendor Vendor { get; set; } = new();
     public ICollection<Like> Likes { get; set; } = [];
     public ICollection<Review> Reviews { get; set; } = [];
