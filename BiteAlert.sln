@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.10.35027.167
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BiteAlert", "BiteAlert\BiteAlert.csproj", "{AD3C7CCC-F7F4-4BAE-9B0A-253633AB41CE}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{AD3C7CCC-F7F4-4BAE-9B0A-253633AB41CE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AD3C7CCC-F7F4-4BAE-9B0A-253633AB41CE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AD3C7CCC-F7F4-4BAE-9B0A-253633AB41CE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AD3C7CCC-F7F4-4BAE-9B0A-253633AB41CE}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {FBE7FA26-FACA-4BDA-9544-A89827B55465}
+	EndGlobalSection
+EndGlobal
