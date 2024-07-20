@@ -1,12 +1,12 @@
-﻿using BiteAlert.Modules.CustomerModule;
+﻿using BiteAlert.Modules.Authentication;
 
 namespace BiteAlert.Modules.NotificationModule;
 
 public class Notification
 {
     public Guid Id { get; set; }
-    public Guid CustomerId { get; set; }
-    public Customer Customer { get; set; } = new();
+    public Guid UserId { get; set; }
+    public ApplicationUser User { get; set; } = new();
     public string Title { get; set; } = string.Empty;
     public string Message { get; set; } = string.Empty;
     public DateTime CreatedAt { get; set; }
