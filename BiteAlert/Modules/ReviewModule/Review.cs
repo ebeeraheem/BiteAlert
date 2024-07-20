@@ -11,6 +11,15 @@ public class Review
     public string ProductId { get; set; } = string.Empty;
     public Product Product { get; set; } = new();
     public string Comment { get; set; } = string.Empty;
-    public int Rating { get; set; }
+    public Rating Rating { get; set; }
     public DateTime ReviewedAt { get; set; }
+}
+
+public enum Rating
+{
+    OneStar = 1,
+    TwoStars = 2,
+    ThreeStars = 3,
+    FourStars = 4,
+    FiveStars = 5
 }
