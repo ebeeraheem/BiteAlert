@@ -17,6 +17,6 @@ public class Vendor : ApplicationUser
     {
         return Reviews.Count == 0 ?
             0 :
-            Reviews.Average(r => r.Rating);
+            Reviews.Average(r => (int)r.Rating);
     }
 }
