@@ -1,4 +1,5 @@
 ﻿using BiteAlert.Modules.CustomerModule;
+using BiteAlert.Modules.ProductModule;
 
 namespace BiteAlert.Modules.ReviewModule;
 
