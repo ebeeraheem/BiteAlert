@@ -1,5 +1,6 @@
 ﻿using BiteAlert.Modules.Authentication;
 using BiteAlert.Modules.LikeModule;
+using BiteAlert.Modules.NotificationModule;
 using BiteAlert.Modules.ReviewModule;
 using BiteAlert.Modules.VendorModule;
 
