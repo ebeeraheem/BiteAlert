@@ -5,8 +5,8 @@ namespace BiteAlert.Modules.NotificationModule;
 public class Notification
 {
     public Guid Id { get; set; }
-    public string CustomerId { get; set; }
-    public Customer Customer { get; set; }
-    public string Message { get; set; }
+    public string CustomerId { get; set; } = string.Empty;
+    public Customer Customer { get; set; } = new();
+    public string Message { get; set; } = string.Empty;
     public DateTime CreatedAt { get; set; }
 }
