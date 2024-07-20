@@ -1,5 +1,4 @@
 ﻿using BiteAlert.Modules.CustomerModule;
-using BiteAlert.Modules.ProductModule;
 
 namespace BiteAlert.Modules.ReviewModule;
 
@@ -8,8 +7,6 @@ public class Review
     public Guid Id { get; set; }
     public string CustomerId { get; set; } = string.Empty;
     public Customer Customer { get; set; } = new();
-    public Guid ProductId { get; set; }
-    public Product Product { get; set; } = new();
     public string Comment { get; set; } = string.Empty;
     public Rating Rating { get; set; }
     public DateTime ReviewedAt { get; set; }

@@ -33,11 +33,6 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
             .HasColumnType("decimal(18,2)");
 
         // Configure entities to have sequential IDs on add
-        builder.Entity<ApplicationUser>()
-            .Property(a => a.Id)
-            .ValueGeneratedOnAdd()
-            .HasDefaultValueSql("NEWSEQUENTIALID()");
-
         builder.Entity<Product>()
             .Property(p => p.Id)
             .ValueGeneratedOnAdd()
