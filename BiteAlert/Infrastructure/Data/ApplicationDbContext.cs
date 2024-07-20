@@ -1,4 +1,6 @@
 ﻿using BiteAlert.Modules.Authentication;
+using BiteAlert.Modules.CustomerModule;
+using BiteAlert.Modules.VendorModule;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
@@ -11,4 +13,6 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
     }
 
     public DbSet<ApplicationUser> ApplicationUsers { get; set; }
+    public DbSet<Vendor> Vendors { get; set; }
+    public DbSet<Customer> Customers { get; set; }
 }
