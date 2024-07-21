@@ -6,9 +6,9 @@ public class Notification
 {
     public Guid Id { get; set; }
     public string UserId { get; set; } = string.Empty;
-    public ApplicationUser User { get; set; } = new();
-    public string Title { get; set; } = string.Empty;
-    public string Message { get; set; } = string.Empty;
+    public required ApplicationUser User { get; set; }
+    public required string Title { get; set; }
+    public required string Message { get; set; }
     public DateTime CreatedAt { get; set; }
 }
 

@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace BiteAlert.Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20240720205351_CreateCustomersAndVendorsTables")]
-    partial class CreateCustomersAndVendorsTables
+    [Migration("20240721145331_RemoveLikeModule")]
+    partial class RemoveLikeModule
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -25,7 +25,7 @@ namespace BiteAlert.Infrastructure.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
-            modelBuilder.Entity("BiteAlert.Modules.Authentication.ApplicationUser", b =>
+            modelBuilder.Entity("BiteAlert.Modules.CustomerModule.Customer", b =>
                 {
                     b.Property<string>("Id")
                         .HasColumnType("nvarchar(450)");
@@ -34,28 +34,24 @@ namespace BiteAlert.Infrastructure.Migrations
                         .HasColumnType("int");
 
                     b.Property<string>("ConcurrencyStamp")
-                        .IsConcurrencyToken()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<DateTime>("DateOfBirth")
+                    b.Property<DateTime?>("DateOfBirth")
                         .HasColumnType("datetime2");
 
                     b.Property<string>("Email")
-                        .HasMaxLength(256)
-                        .HasColumnType("nvarchar(256)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<bool>("EmailConfirmed")
                         .HasColumnType("bit");
 
                     b.Property<string>("FirstName")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("LastName")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("LastUpdatedAt")
@@ -68,12 +64,10 @@ namespace BiteAlert.Infrastructure.Migrations
                         .HasColumnType("datetimeoffset");
 
                     b.Property<string>("NormalizedEmail")
-                        .HasMaxLength(256)
-                        .HasColumnType("nvarchar(256)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("NormalizedUserName")
-                        .HasMaxLength(256)
-                        .HasColumnType("nvarchar(256)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("PasswordHash")
                         .HasColumnType("nvarchar(max)");
@@ -85,7 +79,6 @@ namespace BiteAlert.Infrastructure.Migrations
                         .HasColumnType("bit");
 
                     b.Property<string>("ProfilePictureUrl")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("SecurityStamp")
@@ -95,49 +88,11 @@ namespace BiteAlert.Infrastructure.Migrations
                         .HasColumnType("bit");
 
                     b.Property<string>("UserName")
-                        .IsRequired()
-                        .HasMaxLength(256)
-                        .HasColumnType("nvarchar(256)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("NormalizedEmail")
-                        .HasDatabaseName("EmailIndex");
-
-                    b.HasIndex("NormalizedUserName")
-                        .IsUnique()
-                        .HasDatabaseName("UserNameIndex")
-                        .HasFilter("[NormalizedUserName] IS NOT NULL");
-
-                    b.ToTable("AspNetUsers", (string)null);
-
-                    b.UseTptMappingStrategy();
-                });
-
-            modelBuilder.Entity("BiteAlert.Modules.LikeModule.Like", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier")
-                        .HasDefaultValueSql("NEWSEQUENTIALID()");
-
-                    b.Property<string>("CustomerId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<DateTime>("LikedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<Guid?>("ProductId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("CustomerId");
-
-                    b.HasIndex("ProductId");
-
-                    b.ToTable("Likes");
+                    b.ToTable("Customers", (string)null);
                 });
 
             modelBuilder.Entity("BiteAlert.Modules.NotificationModule.Notification", b =>
@@ -160,11 +115,9 @@ namespace BiteAlert.Infrastructure.Migrations
 
                     b.Property<string>("UserId")
                         .IsRequired()
-                        .HasColumnType("nvarchar(450)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("UserId");
 
                     b.ToTable("Notifications");
                 });
@@ -177,7 +130,6 @@ namespace BiteAlert.Infrastructure.Migrations
                         .HasDefaultValueSql("NEWSEQUENTIALID()");
 
                     b.Property<string>("Description")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("ImageUrl")
@@ -195,7 +147,6 @@ namespace BiteAlert.Infrastructure.Migrations
                         .HasColumnType("decimal(18,2)");
 
                     b.Property<string>("VendorId")
-                        .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
                     b.HasKey("Id");
@@ -213,14 +164,13 @@ namespace BiteAlert.Infrastructure.Migrations
                         .HasDefaultValueSql("NEWSEQUENTIALID()");
 
                     b.Property<string>("Comment")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("CustomerId")
                         .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
-                    b.Property<Guid?>("ProductId")
+                    b.Property<Guid>("ProductId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<int>("Rating")
@@ -236,6 +186,93 @@ namespace BiteAlert.Infrastructure.Migrations
                     b.HasIndex("ProductId");
 
                     b.ToTable("Reviews");
+                });
+
+            modelBuilder.Entity("BiteAlert.Modules.VendorModule.Vendor", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<int>("AccessFailedCount")
+                        .HasColumnType("int");
+
+                    b.Property<string>("BusinessAddress")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("BusinessDescription")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("BusinessName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ConcurrencyStamp")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("CustomerId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<DateTime?>("DateOfBirth")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Email")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("EmailConfirmed")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("FirstName")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("LastName")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("LastUpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("LockoutEnabled")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTimeOffset?>("LockoutEnd")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<string>("NormalizedEmail")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("NormalizedUserName")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("PasswordHash")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("PhoneNumber")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("PhoneNumberConfirmed")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("ProfilePictureUrl")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("SecurityStamp")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("TwoFactorEnabled")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("UserName")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CustomerId");
+
+                    b.ToTable("Vendors", (string)null);
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
@@ -306,11 +343,9 @@ namespace BiteAlert.Infrastructure.Migrations
 
                     b.Property<string>("UserId")
                         .IsRequired()
-                        .HasColumnType("nvarchar(450)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("UserId");
 
                     b.ToTable("AspNetUserClaims", (string)null);
                 });
@@ -328,11 +363,9 @@ namespace BiteAlert.Infrastructure.Migrations
 
                     b.Property<string>("UserId")
                         .IsRequired()
-                        .HasColumnType("nvarchar(450)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("LoginProvider", "ProviderKey");
-
-                    b.HasIndex("UserId");
 
                     b.ToTable("AspNetUserLogins", (string)null);
                 });
@@ -371,70 +404,11 @@ namespace BiteAlert.Infrastructure.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
-            modelBuilder.Entity("BiteAlert.Modules.CustomerModule.Customer", b =>
-                {
-                    b.HasBaseType("BiteAlert.Modules.Authentication.ApplicationUser");
-
-                    b.ToTable("Customers", (string)null);
-                });
-
-            modelBuilder.Entity("BiteAlert.Modules.VendorModule.Vendor", b =>
-                {
-                    b.HasBaseType("BiteAlert.Modules.Authentication.ApplicationUser");
-
-                    b.Property<string>("BusinessAddress")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("BusinessDescription")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("BusinessName")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("CustomerId")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.HasIndex("CustomerId");
-
-                    b.ToTable("Vendors", (string)null);
-                });
-
-            modelBuilder.Entity("BiteAlert.Modules.LikeModule.Like", b =>
-                {
-                    b.HasOne("BiteAlert.Modules.CustomerModule.Customer", "Customer")
-                        .WithMany("Likes")
-                        .HasForeignKey("CustomerId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("BiteAlert.Modules.ProductModule.Product", null)
-                        .WithMany("Likes")
-                        .HasForeignKey("ProductId");
-
-                    b.Navigation("Customer");
-                });
-
-            modelBuilder.Entity("BiteAlert.Modules.NotificationModule.Notification", b =>
-                {
-                    b.HasOne("BiteAlert.Modules.Authentication.ApplicationUser", "User")
-                        .WithMany()
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("User");
-                });
-
             modelBuilder.Entity("BiteAlert.Modules.ProductModule.Product", b =>
                 {
                     b.HasOne("BiteAlert.Modules.VendorModule.Vendor", "Vendor")
                         .WithMany("Products")
-                        .HasForeignKey("VendorId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("VendorId");
 
                     b.Navigation("Vendor");
                 });
@@ -447,11 +421,22 @@ namespace BiteAlert.Infrastructure.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("BiteAlert.Modules.ProductModule.Product", null)
+                    b.HasOne("BiteAlert.Modules.ProductModule.Product", "Product")
                         .WithMany("Reviews")
-                        .HasForeignKey("ProductId");
+                        .HasForeignKey("ProductId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("Customer");
+
+                    b.Navigation("Product");
+                });
+
+            modelBuilder.Entity("BiteAlert.Modules.VendorModule.Vendor", b =>
+                {
+                    b.HasOne("BiteAlert.Modules.CustomerModule.Customer", null)
+                        .WithMany("FollowedVendors")
+                        .HasForeignKey("CustomerId");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
@@ -463,24 +448,6 @@ namespace BiteAlert.Infrastructure.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<string>", b =>
-                {
-                    b.HasOne("BiteAlert.Modules.Authentication.ApplicationUser", null)
-                        .WithMany()
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<string>", b =>
-                {
-                    b.HasOne("BiteAlert.Modules.Authentication.ApplicationUser", null)
-                        .WithMany()
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserRole<string>", b =>
                 {
                     b.HasOne("Microsoft.AspNetCore.Identity.IdentityRole", null)
@@ -488,58 +455,17 @@ namespace BiteAlert.Infrastructure.Migrations
                         .HasForeignKey("RoleId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.HasOne("BiteAlert.Modules.Authentication.ApplicationUser", null)
-                        .WithMany()
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<string>", b =>
-                {
-                    b.HasOne("BiteAlert.Modules.Authentication.ApplicationUser", null)
-                        .WithMany()
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
-            modelBuilder.Entity("BiteAlert.Modules.CustomerModule.Customer", b =>
-                {
-                    b.HasOne("BiteAlert.Modules.Authentication.ApplicationUser", null)
-                        .WithOne()
-                        .HasForeignKey("BiteAlert.Modules.CustomerModule.Customer", "Id")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
-            modelBuilder.Entity("BiteAlert.Modules.VendorModule.Vendor", b =>
-                {
-                    b.HasOne("BiteAlert.Modules.CustomerModule.Customer", null)
-                        .WithMany("FollowedVendors")
-                        .HasForeignKey("CustomerId");
-
-                    b.HasOne("BiteAlert.Modules.Authentication.ApplicationUser", null)
-                        .WithOne()
-                        .HasForeignKey("BiteAlert.Modules.VendorModule.Vendor", "Id")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
-            modelBuilder.Entity("BiteAlert.Modules.ProductModule.Product", b =>
-                {
-                    b.Navigation("Likes");
-
-                    b.Navigation("Reviews");
                 });
 
             modelBuilder.Entity("BiteAlert.Modules.CustomerModule.Customer", b =>
                 {
                     b.Navigation("FollowedVendors");
 
-                    b.Navigation("Likes");
+                    b.Navigation("Reviews");
+                });
 
+            modelBuilder.Entity("BiteAlert.Modules.ProductModule.Product", b =>
+                {
                     b.Navigation("Reviews");
                 });
 
