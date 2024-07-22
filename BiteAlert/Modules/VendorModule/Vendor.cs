@@ -1,8 +1,13 @@
-﻿namespace BiteAlert.Modules.VendorModule;
+﻿using BiteAlert.Modules.Authentication;
+using System.ComponentModel.DataAnnotations.Schema;
+
+namespace BiteAlert.Modules.VendorModule;
 
 public class Vendor
 {
+    [ForeignKey(nameof(User))]
     public Guid Id { get; set; }
+    public virtual ApplicationUser User { get; set; } = null!;
     public string BusinessName { get; set; } = string.Empty;
     public string BusinessDescription { get; set; } = string.Empty;
     public string BusinessAddress { get; set; } = string.Empty;
