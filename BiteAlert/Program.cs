@@ -18,7 +18,7 @@ builder.Services.AddDbContext<ApplicationDbContext>(
 builder.Services.AddScoped<IUserService, UserService>();
 //builder.Services.AddScoped<IVendorService, VendorService>();
 
-builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
+builder.Services.AddIdentity<ApplicationUser, IdentityRole<Guid>>(options =>
 {
     options.User.RequireUniqueEmail = true;
     options.Password.RequiredLength = 8;

@@ -2,7 +2,7 @@
 
 namespace BiteAlert.Modules.Authentication;
 
-public class ApplicationUser : IdentityUser
+public class ApplicationUser : IdentityUser<Guid>
 {
     // Id, UserName, Email, PhoneNumber, PasswordHash, EmailConfirmed,
     // and PhoneNumberConfirmed are all inherited from IdentityUser
