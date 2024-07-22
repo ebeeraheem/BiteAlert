@@ -26,7 +26,6 @@
 
   <ItemGroup>
     <Folder Include="Controllers\" />
-    <Folder Include="Modules\Authentication\" />
     <Folder Include="Modules\NotificationModule\" />
     <Folder Include="Modules\ProductModule\" />
     <Folder Include="Modules\ReviewModule\" />
