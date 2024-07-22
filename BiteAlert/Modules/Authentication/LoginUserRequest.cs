@@ -2,7 +2,7 @@
 
 namespace BiteAlert.Modules.Authentication;
 
-public class LoginRequest
+public class LoginUserRequest
 {
     [EmailAddress]
     public required string Email { get; set; }

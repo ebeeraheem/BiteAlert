@@ -2,7 +2,7 @@
 
 namespace BiteAlert.Modules.Authentication;
 
-public class RegisterRequest
+public class RegisterUserRequest
 {
     public required string UserName { get; set; }
 

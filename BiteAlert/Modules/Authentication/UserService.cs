@@ -26,7 +26,7 @@ public class UserService : IUserService
     }
 
     // Register a new application user
-    public async Task<RegisterResponse> RegisterUserAsync(RegisterRequest request)
+    public async Task<RegisterUserResponse> RegisterUserAsync(RegisterUserRequest request)
     {
         var transaction = await _context.Database
             .BeginTransactionAsync();
@@ -45,9 +45,9 @@ public class UserService : IUserService
 
             if (!result.Succeeded)
             {
-                var failedResponse = new RegisterResponse()
+                var failedResponse = new RegisterUserResponse()
                 {
-                    Status = "failed",
+                    Succeeded = false,
                     Message = "user registration failed",
                     Error = result.Errors
                 };
@@ -55,9 +55,9 @@ public class UserService : IUserService
                 return failedResponse;
             }
 
-            var successResponse = new RegisterResponse()
+            var successResponse = new RegisterUserResponse()
             {
-                Status = "success",
+                Succeeded = true,
                 Message = "user registered successfully"
             };
 
@@ -72,15 +72,15 @@ public class UserService : IUserService
     }
 
     // Login user
-    public async Task<LoginResponse> LoginUserAsync(LoginRequest request)
+    public async Task<LoginUserResponse> LoginUserAsync(LoginUserRequest request)
     {
         var user = await _userManager.FindByEmailAsync(request.Email);
 
         if (user is null)
         {
-            return new LoginResponse()
+            return new LoginUserResponse()
             {
-                Status = "failed",
+                Succeeded = false,
                 Message = "user not found"
             };
         }
@@ -89,18 +89,18 @@ public class UserService : IUserService
 
         if (!result.Succeeded)
         {
-            return new LoginResponse()
+            return new LoginUserResponse()
             {
-                Status = "failed",
+                Succeeded = false,
                 Message = "invalid credentials"
             };
         }
 
         string tokenString = GenerateJwtToken(user);
 
-        var response = new LoginResponse()
+        var response = new LoginUserResponse()
         {
-            Status = "success",
+            Succeeded = true,
             Message = "user logged in successfully",
             Token = tokenString
         };
