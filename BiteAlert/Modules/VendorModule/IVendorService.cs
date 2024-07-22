@@ -4,7 +4,7 @@ namespace BiteAlert.Modules.VendorModule;
 
 public interface IVendorService
 {
-    Task<IdentityResult> RegisterVendorAsync(VendorRegistrationRequest request);
+    Task<RegisterVendorResponse> RegisterVendorAsync(string userId, RegisterVendorRequest request);
     Task ConfirmEmailAsync();
     Task<IdentityResult> LoginVendorAsync();
     Task<Vendor> GetVendorByIdAsync();

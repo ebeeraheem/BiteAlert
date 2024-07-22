@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿// Ignore Spelling: Auth
+
 using Microsoft.AspNetCore.Mvc;
 
 namespace BiteAlert.Modules.Authentication;

@@ -1,35 +1,46 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using BiteAlert.Modules.Utilities;
+using Microsoft.AspNetCore.Mvc;
 
 namespace BiteAlert.Modules.VendorModule;
-[Route("api/auth")]
+[Route("api/vendor")]
 [ApiController]
 public class VendorsController : ControllerBase
 {
     private readonly IVendorService _vendorService;
+    private readonly UserContextService _userContext;
 
-    public VendorsController(IVendorService vendorService)
+    public VendorsController(IVendorService vendorService, UserContextService userContext)
     {
         _vendorService = vendorService;
+        _userContext = userContext;
     }
 
-    [HttpPost("register/vendor")]
-    public async Task<IActionResult> RegisterVendor([FromBody] VendorRegistrationRequest request)
+    [HttpPost("register")]
+    public async Task<IActionResult> RegisterVendor([FromBody] RegisterVendorRequest request)
     {
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(ModelState);
+        }
+
         try
         {
-            if (!ModelState.IsValid)
+            var userId = _userContext.GetUserId();
+
+            if (userId is null)
             {
-                return BadRequest(ModelState);
+                return Unauthorized();
             }
 
-            var result = await _vendorService.RegisterVendorAsync(request);
+            var result = await _vendorService
+                .RegisterVendorAsync(userId, request);
 
             if (!result.Succeeded)
             {
-                return BadRequest(result.Errors);
+                return BadRequest(result);
             }
 
-            return Ok("Registration successful");
+            return Ok(result);
         }
         catch (Exception)
         {

@@ -1,5 +1,6 @@
 using BiteAlert.Infrastructure.Data;
 using BiteAlert.Modules.Authentication;
+using BiteAlert.Modules.Utilities;
 using BiteAlert.Modules.VendorModule;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -16,7 +17,8 @@ builder.Services.AddDbContext<ApplicationDbContext>(
         builder.Configuration.GetConnectionString("DefaultConnection")));
 
 builder.Services.AddScoped<IUserService, UserService>();
-//builder.Services.AddScoped<IVendorService, VendorService>();
+builder.Services.AddScoped<IVendorService, VendorService>();
+builder.Services.AddScoped<UserContextService>();
 
 builder.Services.AddIdentity<ApplicationUser, IdentityRole<Guid>>(options =>
 {
