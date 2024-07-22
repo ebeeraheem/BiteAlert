@@ -110,6 +110,19 @@ public class UserService : IUserService
 
     private string GenerateJwtToken(ApplicationUser user)
     {
+        // Get configuration values
+        var key = _config.GetValue<string>("Jwt:Key");
+        var issuer = _config.GetValue<string>("Jwt:Issuer");
+        var audience = _config.GetValue<string>("Jwt:Audience");
+
+        // Ensure configuration values are not null or empty
+        if (string.IsNullOrEmpty(key) || 
+            string.IsNullOrEmpty(issuer) || 
+            string.IsNullOrEmpty(audience))
+        {
+            throw new InvalidOperationException("JWT configuration values are missing.");
+        }
+
         var claims = new List<Claim>()
         {
             new(ClaimTypes.Email, user.Email),
@@ -117,16 +130,16 @@ public class UserService : IUserService
             new(ClaimTypes.NameIdentifier, user.Id.ToString())
         };
 
-        var key = new SymmetricSecurityKey(
-            Encoding.UTF8.GetBytes(_config.GetValue<string>("Jwt:Key")));
+        var securityKey = new SymmetricSecurityKey(
+            Encoding.UTF8.GetBytes(key));
 
         var credentials = new SigningCredentials(
-            key, SecurityAlgorithms.HmacSha256);
+            securityKey, SecurityAlgorithms.HmacSha256);
 
         // Generate token
         var token = new JwtSecurityToken(
-        issuer: _config.GetValue<string>("Jwt:Issuer"),
-        audience: _config.GetValue<string>("Jwt:Audience"),
+        issuer: issuer,
+        audience: audience,
         claims: claims,
         notBefore: DateTime.UtcNow,
         expires: DateTime.UtcNow.AddMinutes(3),
