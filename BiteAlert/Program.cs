@@ -1,4 +1,6 @@
 using BiteAlert.Infrastructure.Data;
+using BiteAlert.Modules.VendorModule;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -11,6 +13,16 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddDbContext<ApplicationDbContext>(
     options => options.UseSqlServer(
         builder.Configuration.GetConnectionString("DefaultConnection")));
+
+builder.Services.AddScoped<IVendorService, VendorService>();
+
+
+// What do I need to do in order to use UserManager?
+builder.Services.AddIdentity<Vendor, IdentityRole>()
+    //.AddEntityFrameworkStores<ApplicationDbContext>()
+    //.AddUserManager<UserManager<Vendor>>()
+    .AddUserStore<ApplicationDbContext>()
+    .AddDefaultTokenProviders();
 
 var app = builder.Build();
 
