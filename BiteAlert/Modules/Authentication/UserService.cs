@@ -36,7 +36,7 @@ public class UserService : IUserService
             {
                 var failedResponse = new RegisterUserResponse()
                 {
-                    Status = "success",
+                    Status = "failed",
                     Message = "user registration failed",
                     Error = result.Errors
                 };

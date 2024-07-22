@@ -18,7 +18,11 @@ builder.Services.AddDbContext<ApplicationDbContext>(
 builder.Services.AddScoped<IUserService, UserService>();
 //builder.Services.AddScoped<IVendorService, VendorService>();
 
-builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
+builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
+{
+    options.User.RequireUniqueEmail = true;
+    options.Password.RequiredLength = 8;
+})
     .AddEntityFrameworkStores<ApplicationDbContext>()
     .AddDefaultTokenProviders();
 

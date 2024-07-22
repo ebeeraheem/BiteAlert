@@ -10,6 +10,7 @@ public class ApplicationUser : IdentityUser
     public string? LastName { get; set; }
     public DateTime? DateOfBirth { get; set; }
     public string? ProfilePictureUrl { get; set; }
+    public bool IsDeleted { get; set; }
     public DateTime CreatedAt { get; set; }
     public DateTime LastUpdatedAt { get; set; }
 }
