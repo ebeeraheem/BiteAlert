@@ -15,7 +15,8 @@ builder.Services.AddDbContext<ApplicationDbContext>(
     options => options.UseSqlServer(
         builder.Configuration.GetConnectionString("DefaultConnection")));
 
-builder.Services.AddScoped<IVendorService, VendorService>();
+builder.Services.AddScoped<IUserService, UserService>();
+//builder.Services.AddScoped<IVendorService, VendorService>();
 
 builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
     .AddEntityFrameworkStores<ApplicationDbContext>()

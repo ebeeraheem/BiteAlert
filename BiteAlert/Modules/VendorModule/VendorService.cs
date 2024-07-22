@@ -3,56 +3,56 @@ using Microsoft.AspNetCore.Identity;
 
 namespace BiteAlert.Modules.VendorModule;
 
-public class VendorService : IVendorService
+public class VendorService
 {
-    private readonly UserManager<Vendor> _userManager;
-    private readonly ApplicationDbContext _context;
+    //private readonly UserManager<Vendor> _userManager;
+    //private readonly ApplicationDbContext _context;
 
-    public VendorService(UserManager<Vendor> userManager, ApplicationDbContext context)
-    {
-        _userManager = userManager;
-        _context = context;
-    }
+    //public VendorService(UserManager<Vendor> userManager, ApplicationDbContext context)
+    //{
+    //    _userManager = userManager;
+    //    _context = context;
+    //}
 
-    // Register a vendor
-    public async Task<IdentityResult> RegisterVendorAsync(VendorRegistrationRequest request)
-    {
-        var transaction = await _context.Database
-            .BeginTransactionAsync();
+    //// Register a vendor
+    //public async Task<IdentityResult> RegisterVendorAsync(VendorRegistrationRequest request)
+    //{
+    //    var transaction = await _context.Database
+    //        .BeginTransactionAsync();
 
-        try
-        {
-            // Create a new vendor
-            var vendor = new Vendor
-            {
-                UserName = request.Email,
-                Email = request.Email,
-                BusinessName = request.BusinessName,
-                BusinessDescription = request.BusinessDescription,
-                BusinessAddress = request.BusinessAddress
-            };
+    //    try
+    //    {
+    //        // Create a new vendor
+    //        var vendor = new Vendor
+    //        {
+    //            //UserName = request.Email,
+    //            //Email = request.Email,
+    //            BusinessName = request.BusinessName,
+    //            BusinessDescription = request.BusinessDescription,
+    //            BusinessAddress = request.BusinessAddress
+    //        };
 
-            // Register the vendor
-            var result = await _userManager.CreateAsync(vendor, request.Password);
+    //        // Register the vendor
+    //        var result = await _userManager.CreateAsync(vendor, request.Password);
 
-            if (result.Succeeded)
-            {
-                // Generate email confirmation token
+    //        if (result.Succeeded)
+    //        {
+    //            // Generate email confirmation token
 
-                // Generate email confirmation link
+    //            // Generate email confirmation link
 
-                // Send email confirmation message
-            }
+    //            // Send email confirmation message
+    //        }
 
-            await transaction.CommitAsync();
-            return result;
-        }
-        catch (Exception)
-        {
-            await transaction.RollbackAsync();
-            throw;
-        }
-    }
+    //        await transaction.CommitAsync();
+    //        return result;
+    //    }
+    //    catch (Exception)
+    //    {
+    //        await transaction.RollbackAsync();
+    //        throw;
+    //    }
+    //}
     // Login
     public Task<IdentityResult> LoginVendorAsync()
     {
