@@ -2,7 +2,7 @@
 
 namespace BiteAlert.Modules.Authentication;
 
-public class RegisterUserResponse
+public class RegisterResponse
 {
     public string Status { get; set; } = string.Empty;
     public string Message { get; set; } = string.Empty;

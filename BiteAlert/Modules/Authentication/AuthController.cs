@@ -14,7 +14,7 @@ public class AuthController : ControllerBase
     }
 
     [HttpPost("register")]
-    public async Task<IActionResult> RegisterUser([FromBody] RegisterUserRequest request)
+    public async Task<IActionResult> RegisterUser([FromBody] RegisterRequest request)
     {
         if (!ModelState.IsValid)
         {
@@ -35,6 +35,31 @@ public class AuthController : ControllerBase
         catch (Exception)
         {
             return StatusCode(StatusCodes.Status500InternalServerError, "An unexpected error occurred. User registration failed.");
+        }
+    }
+
+    [HttpPost("login")]
+    public async Task<IActionResult> LoginUser([FromBody] LoginRequest request)
+    {
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(ModelState);
+        }
+
+        try
+        {
+            var result = await _userService.LoginUserAsync(request);
+
+            if (result.Token is null)
+            {
+                return BadRequest(result);
+            }
+
+            return Ok(result);
+        }
+        catch (Exception)
+        {
+            return StatusCode(StatusCodes.Status500InternalServerError, "An unexpected error occurred. User login failed.");
         }
     }
 }
