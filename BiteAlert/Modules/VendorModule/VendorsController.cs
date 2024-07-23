@@ -47,4 +47,30 @@ public class VendorsController : ControllerBase
             return StatusCode(StatusCodes.Status500InternalServerError, "An unexpected error occured.");
         }
     }
+
+    [HttpGet("by-id/{vendorId}")]
+    public async Task<IActionResult> GetVendorById(string vendorId)
+    {
+        var vendor = await _vendorService.GetVendorByIdAsync(vendorId);
+
+        if (vendor is null)
+        {
+            return NotFound("vendor not found");
+        }
+
+        return Ok(vendor);
+    }
+
+    [HttpGet("by-username/{userName}")]
+    public async Task<IActionResult> GetVendorByUserName(string userName)
+    {
+        var vendor = await _vendorService.GetVendorByUserNameAsync(userName);
+
+        if (vendor is null)
+        {
+            return NotFound("vendor not found");
+        }
+
+        return Ok(vendor);
+    }
 }

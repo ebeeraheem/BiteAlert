@@ -1,6 +1,7 @@
 ﻿using BiteAlert.Infrastructure.Data;
 using BiteAlert.Modules.Authentication;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 
 namespace BiteAlert.Modules.VendorModule;
 
@@ -80,21 +81,18 @@ public class VendorService : IVendorService
             throw;
         }
     }
-    // Login
-    public Task<IdentityResult> LoginVendorAsync()
-    {
-        throw new NotImplementedException();
-    }
 
     // Get vendor information
-    public Task<Vendor> GetVendorByIdAsync()
+    public async Task<Vendor?> GetVendorByIdAsync(string vendorId)
     {
-        throw new NotImplementedException();
+        return await _context.Vendors
+            .SingleOrDefaultAsync(v => v.Id.ToString() == vendorId);
     }
 
-    public Task<Vendor> GetVendorByUserNameAsync()
+    public async Task<Vendor?> GetVendorByUserNameAsync(string userName)
     {
-        throw new NotImplementedException();
+        return await _context.Vendors
+            .SingleOrDefaultAsync(v => v.User.UserName == userName);
     }
 
     // Update vendor information
