@@ -1,5 +1,6 @@
 using BiteAlert.Infrastructure.Data;
 using BiteAlert.Modules.Authentication;
+using BiteAlert.Modules.CustomerModule;
 using BiteAlert.Modules.Utilities;
 using BiteAlert.Modules.VendorModule;
 using Microsoft.AspNetCore.Identity;
@@ -18,6 +19,7 @@ builder.Services.AddDbContext<ApplicationDbContext>(
 
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IVendorService, VendorService>();
+builder.Services.AddScoped<ICustomerService, CustomerService>();
 builder.Services.AddScoped<UserContextService>();
 
 builder.Services.AddIdentity<ApplicationUser, IdentityRole<Guid>>(options =>
