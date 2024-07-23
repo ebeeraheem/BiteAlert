@@ -48,6 +48,18 @@ public class VendorService : IVendorService
                 };
             }
 
+            // Check if the user is a customer
+            var userIsCustomer = await _context.Customers.FindAsync(userGuid);
+
+            if (userIsCustomer is not null)
+            {
+                return new UpsertVendorResponse()
+                {
+                    Succeeded = false,
+                    Message = "You are currently registered as a customer."
+                };
+            }
+
             // Check if user is already a vendor
             var userIsVendor = await _context.Vendors.FindAsync(userGuid);
             if (userIsVendor is not null)
