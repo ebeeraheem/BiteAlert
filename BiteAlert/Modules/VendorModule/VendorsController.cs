@@ -1,9 +1,8 @@
 ﻿using BiteAlert.Modules.Utilities;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 
 namespace BiteAlert.Modules.VendorModule;
-[Route("api/vendor")]
+[Route("api/[controller]")]
 [ApiController]
 public class VendorsController : ControllerBase
 {

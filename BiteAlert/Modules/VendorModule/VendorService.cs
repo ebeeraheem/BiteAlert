@@ -1,5 +1,6 @@
 ﻿using BiteAlert.Infrastructure.Data;
 using BiteAlert.Modules.Authentication;
+using BiteAlert.Modules.CustomerModule;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
@@ -36,8 +37,19 @@ public class VendorService : IVendorService
                 };
             }
 
+            var isValidGuid = Guid.TryParse(userId, out Guid userGuid);
+
+            if (!isValidGuid)
+            {
+                return new UpsertVendorResponse()
+                {
+                    Succeeded = false,
+                    Message = "invalid user id"
+                };
+            }
+
             // Check if user is already a vendor
-            var userIsVendor = await _context.Vendors.FindAsync(userId);
+            var userIsVendor = await _context.Vendors.FindAsync(userGuid);
             if (userIsVendor is not null)
             {
                 return new UpsertVendorResponse()
