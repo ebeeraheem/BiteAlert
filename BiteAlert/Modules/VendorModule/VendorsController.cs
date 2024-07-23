@@ -74,7 +74,7 @@ public class VendorsController : ControllerBase
         return Ok(vendor);
     }
 
-    [HttpPost("update")]
+    [HttpPut("update")]
     public async Task<IActionResult> UpdateBusinessInfo([FromBody] UpsertVendorRequest request)
     {
         var vendorId = _userContext.GetUserId();
