@@ -1,10 +1,10 @@
-﻿// Ignore Spelling: App Tagline
+﻿// Ignore Spelling: App Tagline Upsert
 
 using System.ComponentModel.DataAnnotations;
 
 namespace BiteAlert.Modules.VendorModule;
 
-public class RegisterVendorRequest
+public class UpsertVendorRequest
 {
     public required string BusinessName { get; set; }
     public string? BusinessTagline { get; set; }

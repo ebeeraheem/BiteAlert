@@ -17,7 +17,7 @@ public class VendorService : IVendorService
     }
 
     // Register a vendor
-    public async Task<RegisterVendorResponse> RegisterVendorAsync(string userId,            RegisterVendorRequest request)
+    public async Task<UpsertVendorResponse> RegisterVendorAsync(string userId,            UpsertVendorRequest request)
     {
         var transaction = await _context.Database
             .BeginTransactionAsync();
@@ -29,7 +29,7 @@ public class VendorService : IVendorService
 
             if (user is null)
             {
-                return new RegisterVendorResponse()
+                return new UpsertVendorResponse()
                 {
                     Succeeded = false,
                     Message = "user not found"
@@ -40,7 +40,7 @@ public class VendorService : IVendorService
             var userIsVendor = await _context.Vendors.FindAsync(userId);
             if (userIsVendor is not null)
             {
-                return new RegisterVendorResponse()
+                return new UpsertVendorResponse()
                 {
                     Succeeded = false,
                     Message = "user is already a vendor"
@@ -67,7 +67,7 @@ public class VendorService : IVendorService
 
             await transaction.CommitAsync();
 
-            var response = new RegisterVendorResponse()
+            var response = new UpsertVendorResponse()
             {
                 Succeeded = true,
                 Message = "vendor registered successfully"
@@ -96,9 +96,79 @@ public class VendorService : IVendorService
     }
 
     // Update vendor information
-    public Task UpdateVendorBusinessInfo()
+    public async Task<UpsertVendorResponse> UpdateVendorBusinessInfo(string vendorId, UpsertVendorRequest request)
     {
-        throw new NotImplementedException();
+        var transaction = await _context.Database
+            .BeginTransactionAsync();
+
+        try
+        {
+            var vendor = await _context.Vendors.SingleOrDefaultAsync(
+                                    v => v.Id.ToString() == vendorId);
+
+            if (vendor is null)
+            {
+                return new UpsertVendorResponse()
+                {
+                    Succeeded = false,
+                    Message = "vendor not found"
+                };
+            }
+
+            // Update only the fields provided in the request
+            if (request.BusinessName is not null)
+            {
+                vendor.BusinessName = request.BusinessName;
+            }
+
+            if (request.BusinessTagline is not null)
+            {
+                vendor.BusinessTagline = request.BusinessTagline;
+            }
+
+            if (request.BusinessDescription is not null)
+            {
+                vendor.BusinessDescription = request.BusinessDescription;
+            }
+
+            if (request.BusinessAddress is not null)
+            {
+                vendor.BusinessAddress = request.BusinessAddress;
+            }
+
+            if (request.BusinessEmail is not null)
+            {
+                vendor.BusinessEmail = request.BusinessEmail;
+            }
+
+            if (request.BusinessPhoneNumber is not null)
+            {
+                vendor.BusinessPhoneNumber = request.BusinessPhoneNumber;
+            }
+
+            if (request.LogoUrl is not null)
+            {
+                vendor.LogoUrl = request.LogoUrl;
+            }
+
+            _context.Vendors.Update(vendor);
+            await _context.SaveChangesAsync();
+
+            await transaction.CommitAsync();
+
+            var response = new UpsertVendorResponse()
+            {
+                Succeeded = true,
+                Message = "vendor updated successfully"
+            };
+
+            return response;
+        }
+        catch (Exception)
+        {
+            await transaction.RollbackAsync();
+            throw;
+        }
     }
 
     public Task UpdateVendorProfileInfo()

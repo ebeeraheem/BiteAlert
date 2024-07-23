@@ -3,6 +3,7 @@
 using BiteAlert.Modules.Authentication;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.Json.Serialization;
 
 namespace BiteAlert.Modules.VendorModule;
 
@@ -10,6 +11,8 @@ public class Vendor
 {
     [ForeignKey(nameof(User))]
     public Guid Id { get; set; }
+
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public virtual ApplicationUser User { get; set; } = null!;
     public string BusinessName { get; set; } = string.Empty;
     public string? BusinessTagline { get; set; }

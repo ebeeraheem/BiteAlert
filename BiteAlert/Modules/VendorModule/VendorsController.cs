@@ -1,5 +1,6 @@
 ﻿using BiteAlert.Modules.Utilities;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace BiteAlert.Modules.VendorModule;
 [Route("api/vendor")]
@@ -16,8 +17,15 @@ public class VendorsController : ControllerBase
     }
 
     [HttpPost("register")]
-    public async Task<IActionResult> RegisterVendor([FromBody] RegisterVendorRequest request)
-    {
+    public async Task<IActionResult> RegisterVendor([FromBody] UpsertVendorRequest request)
+{
+        var userId = _userContext.GetUserId();
+
+        if (userId is null)
+        {
+            return Unauthorized();
+        }
+
         if (!ModelState.IsValid)
         {
             return BadRequest(ModelState);
@@ -25,26 +33,19 @@ public class VendorsController : ControllerBase
 
         try
         {
-            var userId = _userContext.GetUserId();
-
-            if (userId is null)
-            {
-                return Unauthorized();
-            }
-
             var result = await _vendorService
                 .RegisterVendorAsync(userId, request);
 
-            if (!result.Succeeded)
+            if (result.Succeeded)
             {
-                return BadRequest(result);
+                return Ok(result);
             }
 
-            return Ok(result);
+            return BadRequest(result);
         }
         catch (Exception)
         {
-            return StatusCode(StatusCodes.Status500InternalServerError, "An unexpected error occured.");
+            return StatusCode(StatusCodes.Status500InternalServerError, "An unexpected error occurred.");
         }
     }
 
@@ -72,5 +73,38 @@ public class VendorsController : ControllerBase
         }
 
         return Ok(vendor);
+    }
+
+    [HttpPost("update")]
+    public async Task<IActionResult> UpdateBusinessInfo([FromBody] UpsertVendorRequest request)
+    {
+        var vendorId = _userContext.GetUserId();
+
+        if (vendorId is null)
+        {
+            return Unauthorized();
+        }
+
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(ModelState);
+        }
+
+        try
+        {
+            var result = await _vendorService
+                                    .UpdateVendorBusinessInfo(vendorId, request);
+
+            if (result.Succeeded)
+            {
+                return Ok(result);
+            }
+
+            return BadRequest(result);
+        }
+        catch (Exception)
+        {
+            return StatusCode(StatusCodes.Status500InternalServerError, "An unexpected error occurred.");
+        }
     }
 }
