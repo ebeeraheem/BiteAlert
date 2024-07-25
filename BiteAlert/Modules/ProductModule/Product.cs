@@ -1,6 +1,7 @@
 ﻿using BiteAlert.Modules.VendorModule;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.Json.Serialization;
 
 namespace BiteAlert.Modules.ProductModule;
 
@@ -16,5 +17,6 @@ public class Product
     public bool IsAvailable { get; set; }
 
     public required Guid VendorId { get; set; }
+    [JsonIgnore]
     public Vendor? Vendor { get; set; }
 }
