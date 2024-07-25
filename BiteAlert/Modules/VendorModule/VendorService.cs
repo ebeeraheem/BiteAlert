@@ -194,21 +194,4 @@ public class VendorService : IVendorService
             throw;
         }
     }
-
-    public Task UpdateVendorProfileInfo()
-    {
-        throw new NotImplementedException();
-    }
-
-    // Confirm email
-    public Task ConfirmEmailAsync()
-    {
-        throw new NotImplementedException();
-    }
-
-    // Delete vendor account
-    public Task DeleteVendorAsync()
-    {
-        throw new NotImplementedException();
-    }
 }

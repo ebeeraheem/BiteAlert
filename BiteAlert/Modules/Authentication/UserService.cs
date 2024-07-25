@@ -1,5 +1,6 @@
 ﻿using BiteAlert.Infrastructure.Data;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
@@ -109,11 +110,124 @@ public class UserService : IUserService
     }
 
     // Update user profile info
-    public Task<UserProfileResponse> UpdateProfileAsync()
+    public async Task<UserProfileResponse> UpdateProfileAsync(string userId, UserProfileRequest request)
+    {
+        var transaction = await _context.Database
+            .BeginTransactionAsync();
+
+        try
+        {
+            var user = await _userManager.FindByIdAsync(userId);
+
+            if (user is null)
+            {
+                return new UserProfileResponse()
+                {
+                    Succeeded = false,
+                    Message = "User not found"
+                };
+            }
+
+            if (request.FirstName is not null)
+            {
+                user.FirstName = request.FirstName;
+            }
+
+            if (request.LastName is not null)
+            {
+                user.LastName = request.LastName;
+            }
+
+            if (request.UserName is not null)
+            {
+                user.UserName = request.UserName;
+            }
+
+            if (request.PhoneNumber is not null)
+            {
+                user.PhoneNumber = request.PhoneNumber;
+            }
+
+            if (request.DateOfBirth is not null)
+            {
+                user.DateOfBirth = request.DateOfBirth;
+            }
+
+            if (request.ProfilePictureUrl is not null)
+            {
+                user.ProfilePictureUrl = request.ProfilePictureUrl;
+            }
+
+            var result = await _userManager.UpdateAsync(user);
+
+            if (result.Succeeded is false)
+            {
+                return new UserProfileResponse()
+                {
+                    Succeeded = false,
+                    Message = "Failed to update user profile.",
+                    Errors = result.Errors
+                };
+            }
+
+            await _context.SaveChangesAsync();
+
+            await transaction.CommitAsync();
+
+            return new UserProfileResponse()
+            {
+                Succeeded = true,
+                Message = "User profile updated successfully."
+            };
+        }
+        catch (Exception)
+        {
+            await transaction.RollbackAsync();
+            throw;
+        }
+    }
+
+    public Task<UserProfileResponse> UpdateEmailAsync()
     {
         throw new NotImplementedException();
     }
 
+    public async Task<UserProfileResponse> UpdatePasswordAsync(string userId, UpdatePasswordRequest request)
+    {
+        var user = await _userManager.FindByIdAsync(userId);
+
+        if (user is null)
+        {
+            return new UserProfileResponse()
+            {
+                Succeeded = false,
+                Message = "User not found"
+            };
+        }
+
+        var result = await _userManager.ChangePasswordAsync(user, request.CurrentPassword, request.NewPassword);
+
+        if (result.Succeeded is false)
+        {
+            return new UserProfileResponse()
+            {
+                Succeeded = false,
+                Message = "Failed to change password",
+                Errors = result.Errors
+            };
+        }
+
+        return new UserProfileResponse()
+        {
+            Succeeded = true,
+             Message = "Password updated successfully"
+        };
+    }
+
+    public Task<UserProfileResponse> ResetPasswordAsync()
+    {
+        throw new NotImplementedException();
+    }
     private string GenerateJwtToken(ApplicationUser user)
     {
         // Get configuration values
@@ -154,49 +268,5 @@ public class UserService : IUserService
         var tokenString = new JwtSecurityTokenHandler().WriteToken(token);
 
         return tokenString;
-    }
-
-    public Task<UserProfileResponse> UpdateEmailAsync()
-    {
-        throw new NotImplementedException();
-    }
-
-    // Change password
-    public async Task<UserProfileResponse> UpdatePasswordAsync(string userId, UpdatePasswordRequest request)
-    {
-        var user = await _userManager.FindByIdAsync(userId);
-
-        if (user is null)
-        {
-            return new UserProfileResponse()
-            {
-                Succeeded = false,
-                Message = "User not found"
-            };
-        }
-
-        var result = await _userManager.ChangePasswordAsync(user, request.CurrentPassword, request.NewPassword);
-
-        if (result.Succeeded is false)
-        {
-            return new UserProfileResponse()
-            {
-                Succeeded = false,
-                Message = "Failed to change password",
-                Errors = result.Errors
-            };
-        }
-
-        return new UserProfileResponse()
-        {
-            Succeeded = true,
-             Message = "Password updated successfully"
-        };
-    }
-
-    // Forgot password
-    public Task<UserProfileResponse> ResetPasswordAsync()
-    {
-        throw new NotImplementedException();
     }
 }
