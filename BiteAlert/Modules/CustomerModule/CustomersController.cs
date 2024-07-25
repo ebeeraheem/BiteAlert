@@ -35,4 +35,17 @@ public class CustomersController : ControllerBase
 
         return BadRequest(result);
     }
+
+    [HttpGet("by-id/{customerId}")]
+    public async Task<IActionResult> GetCustomerById(string customerId)
+    {
+        var customer = await _customerService.GetCustomerById(customerId);
+
+        if (customer is null)
+        {
+            return NotFound("Customer not found");
+        }
+
+        return Ok(customer);
+    }
 }

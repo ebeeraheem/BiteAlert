@@ -269,4 +269,14 @@ public class UserService : IUserService
 
         return tokenString;
     }
+
+    public Task<UserProfileResponse> VerifyEmailAsync()
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task<UserProfileResponse> DeleteUserAccount()
+    {
+        throw new NotImplementedException();
+    }
 }

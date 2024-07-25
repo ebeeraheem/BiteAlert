@@ -1,6 +1,7 @@
 ﻿using BiteAlert.Infrastructure.Data;
 using BiteAlert.Modules.Authentication;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 
 namespace BiteAlert.Modules.CustomerModule;
 
@@ -13,6 +14,12 @@ public class CustomerService : ICustomerService
     {
         _userManager = userManager;
         _context = context;
+    }
+
+    public async Task<Customer?> GetCustomerById(string userId)
+    {
+        return await _context.Customers
+            .SingleOrDefaultAsync(u => u.Id.ToString() == userId);
     }
 
     public async Task<UpsertCustomerResponse> RegisterCustomerAsync(string userId)
