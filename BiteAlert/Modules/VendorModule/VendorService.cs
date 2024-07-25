@@ -81,8 +81,7 @@ public class VendorService : IVendorService
                 BusinessDescription = request.BusinessDescription,
                 BusinessAddress = request.BusinessAddress,
                 BusinessEmail = request.BusinessEmail,
-                BusinessPhoneNumber = request.BusinessPhoneNumber,
-                LogoUrl = request.LogoUrl,
+                BusinessPhoneNumber = request.BusinessPhoneNumber
             };
 
             // Save the vendor
@@ -168,11 +167,6 @@ public class VendorService : IVendorService
             if (request.BusinessPhoneNumber is not null)
             {
                 vendor.BusinessPhoneNumber = request.BusinessPhoneNumber;
-            }
-
-            if (request.LogoUrl is not null)
-            {
-                vendor.LogoUrl = request.LogoUrl;
             }
 
             _context.Vendors.Update(vendor);

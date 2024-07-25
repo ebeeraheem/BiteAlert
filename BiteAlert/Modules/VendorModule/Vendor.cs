@@ -25,7 +25,6 @@ public class Vendor
 
     [Phone]
     public string? BusinessPhoneNumber { get; set; }
-    public string? LogoUrl { get; set; }
 
     public ICollection<Product>? Products { get; set; }
     //public ICollection<Customer>? Followers { get; set; }

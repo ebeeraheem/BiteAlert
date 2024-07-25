@@ -16,5 +16,4 @@ public class UpsertVendorRequest
 
     [Phone]
     public string? BusinessPhoneNumber { get; set;}
-    public string? LogoUrl { get; set; }
 }
