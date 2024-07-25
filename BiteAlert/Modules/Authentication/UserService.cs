@@ -49,7 +49,7 @@ public class UserService : IUserService
                 {
                     Succeeded = false,
                     Message = "user registration failed",
-                    Error = result.Errors
+                    Errors = result.Errors
                 };
 
                 return failedResponse;
@@ -108,6 +108,12 @@ public class UserService : IUserService
         return response;
     }
 
+    // Update user profile info
+    public Task<UserProfileResponse> UpdateProfileAsync()
+    {
+        throw new NotImplementedException();
+    }
+
     private string GenerateJwtToken(ApplicationUser user)
     {
         // Get configuration values
@@ -148,5 +154,49 @@ public class UserService : IUserService
         var tokenString = new JwtSecurityTokenHandler().WriteToken(token);
 
         return tokenString;
+    }
+
+    public Task<UserProfileResponse> UpdateEmailAsync()
+    {
+        throw new NotImplementedException();
+    }
+
+    // Change password
+    public async Task<UserProfileResponse> UpdatePasswordAsync(string userId, UpdatePasswordRequest request)
+    {
+        var user = await _userManager.FindByIdAsync(userId);
+
+        if (user is null)
+        {
+            return new UserProfileResponse()
+            {
+                Succeeded = false,
+                Message = "User not found"
+            };
+        }
+
+        var result = await _userManager.ChangePasswordAsync(user, request.CurrentPassword, request.NewPassword);
+
+        if (result.Succeeded is false)
+        {
+            return new UserProfileResponse()
+            {
+                Succeeded = false,
+                Message = "Failed to change password",
+                Errors = result.Errors
+            };
+        }
+
+        return new UserProfileResponse()
+        {
+            Succeeded = true,
+             Message = "Password updated successfully"
+        };
+    }
+
+    // Forgot password
+    public Task<UserProfileResponse> ResetPasswordAsync()
+    {
+        throw new NotImplementedException();
     }
 }

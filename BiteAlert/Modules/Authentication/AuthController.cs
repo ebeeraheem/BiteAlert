@@ -1,5 +1,6 @@
 ﻿// Ignore Spelling: Auth
 
+using BiteAlert.Modules.Utilities;
 using Microsoft.AspNetCore.Mvc;
 
 namespace BiteAlert.Modules.Authentication;
@@ -8,10 +9,12 @@ namespace BiteAlert.Modules.Authentication;
 public class AuthController : ControllerBase
 {
     private readonly IUserService _userService;
+    private readonly UserContextService _userContext;
 
-    public AuthController(IUserService userService)
+    public AuthController(IUserService userService, UserContextService userContext)
     {
         _userService = userService;
+        _userContext = userContext;
     }
 
     [HttpPost("register")]
@@ -26,7 +29,7 @@ public class AuthController : ControllerBase
         {
             var result = await _userService.RegisterUserAsync(request);
 
-            if (result.Error is null)
+            if (result.Errors is null)
             {
                 return Ok(result);
             }
@@ -62,5 +65,30 @@ public class AuthController : ControllerBase
         {
             return StatusCode(StatusCodes.Status500InternalServerError, "An unexpected error occurred. User login failed.");
         }
+    }
+
+    [HttpPost("update/password")]
+    public async Task<IActionResult> ChangePassword([FromBody] UpdatePasswordRequest request)
+    {
+        var userId = _userContext.GetUserId();
+
+        if (userId is null)
+        {
+            return Unauthorized();
+        }
+
+        if (request.CurrentPassword == request.NewPassword)
+        {
+            return BadRequest("New password cannot be the same as old password");
+        }
+
+        var result = await _userService.UpdatePasswordAsync(userId, request);
+
+        if (result.Succeeded)
+        {
+            return Ok(result);
+        }
+
+        return BadRequest(result);
     }
 }
