@@ -23,10 +23,20 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser, IdentityR
     {
         base.OnModelCreating(builder);
 
-        // Generate sequential IDs for application user
+        // Generate sequential IDs
         builder.Entity<ApplicationUser>()
             .Property(a => a.Id)
             .ValueGeneratedOnAdd()
             .HasDefaultValueSql("NEWSEQUENTIALID()");
+
+        builder.Entity<Product>()
+            .Property(p => p.Id)
+            .ValueGeneratedOnAdd()
+            .HasDefaultValueSql("NEWSEQUENTIALID()");
+
+        // Add store type for price
+        builder.Entity<Product>()
+            .Property(p => p.Price)
+            .HasColumnType("decimal(18,2)");
     }
 }

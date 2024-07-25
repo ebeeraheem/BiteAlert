@@ -13,9 +13,36 @@ public class ProductService : IProductService
         _context = context;
     }
 
-    public async Task<Product?> GetProductByIdAsync(string productId)
+    public async Task<UpsertProductResponse> GetProductByIdAsync(string productId)
     {
-        return await _context.Products.FindAsync(productId);
+        var isValidGuid = Guid.TryParse(productId, out var productGuid);
+
+        if (isValidGuid is false)
+        {
+            return new UpsertProductResponse()
+            {
+                Succeeded = false,
+                Message = "Invalid product id."
+            };
+        }
+
+        var product = await _context.Products.FindAsync(productGuid);
+
+        if (product is null)
+        {
+            return new UpsertProductResponse()
+            {
+                Succeeded = false,
+                Message = "Product not found"
+            };
+        }
+
+        return new UpsertProductResponse()
+        {
+            Succeeded = true,
+            Message = "success",
+            Product = product
+        };
     }
 
     public async Task<IEnumerable<Product>> GetProductsAsync()
@@ -27,8 +54,19 @@ public class ProductService : IProductService
         var transaction = await _context.Database
             .BeginTransactionAsync();
 
+        bool isValidGuid = Guid.TryParse(vendorId, out Guid vendorGuid);
+
+        if (isValidGuid is false)
+        {
+            return new UpsertProductResponse()
+            {
+                Succeeded = false,
+                Message = "Invalid vendor id"
+            };
+        }
+
         // Get the vendor who is creating the product
-        var vendor = await _context.Vendors.FindAsync(vendorId);
+        var vendor = await _context.Vendors.FindAsync(vendorGuid);
 
         if (vendor is null)
         {
@@ -47,7 +85,7 @@ public class ProductService : IProductService
             Price = request.Price,
             ImageUrl = request.ImageUrl,
             IsAvailable = false,
-            VendorId = vendorId,
+            VendorId = vendor.Id,
             Vendor = vendor
         };
 

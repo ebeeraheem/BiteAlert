@@ -16,6 +16,6 @@ public class Product
     public bool IsAvailable { get; set; }
 
     [ForeignKey(nameof(Vendor))]
-    public required string VendorId { get; set; }
+    public required Guid VendorId { get; set; }
     public Vendor? Vendor { get; set; }
 }
