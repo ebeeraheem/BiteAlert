@@ -70,4 +70,36 @@ public class ProductsController : ControllerBase
             return StatusCode(StatusCodes.Status500InternalServerError, "An unexpected error occurred. Product creation failed.");
         }
     }
+
+    [HttpPut("{productId}")]
+    public async Task<IActionResult> Update(string productId, [FromBody] UpsertProductRequest request)
+    {
+        var vendorId = _userContext.GetUserId();
+
+        if (vendorId is null)
+        {
+            return Unauthorized();
+        }
+
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(ModelState);
+        }
+
+        try
+        {
+            var result = await _productService.UpdateAsync(vendorId, productId, request);
+
+            if (result.Succeeded)
+            {
+                return Ok(result);
+            }
+
+            return BadRequest(result);
+        }
+        catch (Exception)
+        {
+            return StatusCode(StatusCodes.Status500InternalServerError, "An unexpected error occurred. Failed to update product.");
+        }
+    }
 }

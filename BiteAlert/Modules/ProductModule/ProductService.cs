@@ -117,7 +117,9 @@ public class ProductService : IProductService
             .BeginTransactionAsync();
 
         // Get the vendor who is updating the product
-        var vendor = await _context.Vendors.FindAsync(vendorId);
+        var vendor = await _context.Vendors
+                        .Include(v => v.Products)
+                        .SingleOrDefaultAsync(v => v.Id.ToString() == vendorId);
 
         if (vendor is null)
         {
@@ -129,7 +131,17 @@ public class ProductService : IProductService
         }
 
         // Get the product to be updated
-        var product = await _context.Products.FindAsync(productId);
+        if (vendor.Products is null)
+        {
+            return new UpsertProductResponse()
+            {
+                Succeeded = false,
+                Message = "Product not found"
+            };
+        }
+
+        var product = vendor.Products.SingleOrDefault(
+                            p => p.Id.ToString().Equals(productId, StringComparison.CurrentCultureIgnoreCase));
 
         if (product is null)
         {
