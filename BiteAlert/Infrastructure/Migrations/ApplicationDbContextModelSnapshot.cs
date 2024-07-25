@@ -117,7 +117,7 @@ namespace BiteAlert.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Customers");
+                    b.ToTable("Customers", (string)null);
                 });
 
             modelBuilder.Entity("BiteAlert.Modules.ProductModule.Product", b =>
@@ -151,7 +151,7 @@ namespace BiteAlert.Infrastructure.Migrations
 
                     b.HasIndex("VendorId");
 
-                    b.ToTable("Products");
+                    b.ToTable("Products", (string)null);
                 });
 
             modelBuilder.Entity("BiteAlert.Modules.VendorModule.Vendor", b =>
@@ -185,7 +185,7 @@ namespace BiteAlert.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Vendors");
+                    b.ToTable("Vendors", (string)null);
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole<System.Guid>", b =>

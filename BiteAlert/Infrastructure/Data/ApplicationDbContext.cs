@@ -5,7 +5,6 @@ using BiteAlert.Modules.VendorModule;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
-using System.Diagnostics.Contracts;
 
 namespace BiteAlert.Infrastructure.Data;
 
