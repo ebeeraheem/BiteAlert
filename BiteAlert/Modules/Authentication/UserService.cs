@@ -1,6 +1,5 @@
 ﻿using BiteAlert.Infrastructure.Data;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
@@ -187,11 +186,6 @@ public class UserService : IUserService
         }
     }
 
-    public Task<UserProfileResponse> UpdateEmailAsync()
-    {
-        throw new NotImplementedException();
-    }
-
     public async Task<UserProfileResponse> UpdatePasswordAsync(string userId, UpdatePasswordRequest request)
     {
         var user = await _userManager.FindByIdAsync(userId);
@@ -225,6 +219,21 @@ public class UserService : IUserService
     }
 
     public Task<UserProfileResponse> ResetPasswordAsync()
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task<UserProfileResponse> VerifyEmailAsync()
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task<UserProfileResponse> UpdateEmailAsync()
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task<UserProfileResponse> DeleteUserAccount()
     {
         throw new NotImplementedException();
     }
@@ -268,15 +277,5 @@ public class UserService : IUserService
         var tokenString = new JwtSecurityTokenHandler().WriteToken(token);
 
         return tokenString;
-    }
-
-    public Task<UserProfileResponse> VerifyEmailAsync()
-    {
-        throw new NotImplementedException();
-    }
-
-    public Task<UserProfileResponse> DeleteUserAccount()
-    {
-        throw new NotImplementedException();
-    }
+    }    
 }
