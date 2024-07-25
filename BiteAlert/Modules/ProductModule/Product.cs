@@ -15,7 +15,6 @@ public class Product
     public string ImageUrl { get; set; } = string.Empty;
     public bool IsAvailable { get; set; }
 
-    [ForeignKey(nameof(Vendor))]
     public required Guid VendorId { get; set; }
     public Vendor? Vendor { get; set; }
 }

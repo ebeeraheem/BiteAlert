@@ -1,6 +1,7 @@
 ﻿// Ignore Spelling: Tagline
 
 using BiteAlert.Modules.Authentication;
+using BiteAlert.Modules.ProductModule;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json.Serialization;
@@ -26,7 +27,7 @@ public class Vendor
     public string? BusinessPhoneNumber { get; set; }
     public string? LogoUrl { get; set; }
 
-    //public ICollection<Product>? Products { get; set; }
+    public ICollection<Product>? Products { get; set; }
     //public ICollection<Customer>? Followers { get; set; }
 
     //// The vendor rating is the overall rating of a vendor computed from product ratings

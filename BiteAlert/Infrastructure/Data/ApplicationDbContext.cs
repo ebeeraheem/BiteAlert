@@ -37,5 +37,12 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser, IdentityR
         builder.Entity<Product>()
             .Property(p => p.Price)
             .HasColumnType("decimal(18,2)");
+
+        // Configure vendor-products relationship
+        builder.Entity<Vendor>()
+            .HasMany(v => v.Products)
+            .WithOne(p => p.Vendor)
+            .HasForeignKey(p => p.VendorId)
+            .HasPrincipalKey(v => v.Id);
     }
 }
