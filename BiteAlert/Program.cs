@@ -23,7 +23,9 @@ var app = builder.Build();
 using (var scope = app.Services.CreateScope())
 {
     var services = scope.ServiceProvider;
+    var context = services.GetRequiredService<ApplicationDbContext>();
     await Seeder.SeedRoles(services);
+    await Seeder.SeedAdminUser(services, builder.Configuration, context);
 }
 
 // Configure the HTTP request pipeline.
