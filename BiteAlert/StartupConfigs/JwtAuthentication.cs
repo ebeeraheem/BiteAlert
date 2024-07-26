@@ -1,7 +1,10 @@
 ﻿// Ignore Spelling: Jwt
 
+using BiteAlert.Infrastructure.Data;
+using BiteAlert.Modules.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 
@@ -11,6 +14,16 @@ public static class JwtAuthentication
 {
     public static void AddJwtAuthentication(this WebApplicationBuilder builder)
     {
+        // Configure aspnet identity
+        builder.Services.AddIdentity<ApplicationUser, IdentityRole<Guid>>(options =>
+        {
+            options.User.RequireUniqueEmail = true;
+            options.Password.RequiredLength = 8;
+        })
+            .AddRoles<IdentityRole<Guid>>()
+            .AddEntityFrameworkStores<ApplicationDbContext>()
+            .AddDefaultTokenProviders();
+
         // Retrieve JWT configuration values
         var jwtIssuer = builder.Configuration.GetValue<string>("Jwt:Issuer");
         var jwtAudience = builder.Configuration.GetValue<string>("Jwt:Audience");

@@ -5,7 +5,6 @@ using BiteAlert.Modules.ProductModule;
 using BiteAlert.Modules.Utilities;
 using BiteAlert.Modules.VendorModule;
 using BiteAlert.StartupConfigs;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -28,15 +27,7 @@ builder.Services.AddScoped<ICustomerService, CustomerService>();
 builder.Services.AddScoped<IProductService, ProductService>();
 builder.Services.AddScoped<UserContextService>();
 
-// Configure aspnet identity
-builder.Services.AddIdentity<ApplicationUser, IdentityRole<Guid>>(options =>
-{
-    options.User.RequireUniqueEmail = true;
-    options.Password.RequiredLength = 8;
-})
-    .AddRoles<IdentityRole<Guid>>()
-    .AddEntityFrameworkStores<ApplicationDbContext>()
-    .AddDefaultTokenProviders();
+
 
 builder.AddJwtAuthentication();
 
