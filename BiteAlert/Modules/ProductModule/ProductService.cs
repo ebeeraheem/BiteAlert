@@ -136,7 +136,7 @@ public class ProductService : IProductService
             return new UpsertProductResponse()
             {
                 Succeeded = false,
-                Message = "Product not found"
+                Message = "Vendor has no products"
             };
         }
 
@@ -194,14 +194,64 @@ public class ProductService : IProductService
         }
     }
 
-    public async Task<bool> DeleteAsync(string productId)
+    public async Task<UpsertProductResponse> DeleteAsync(string vendorId, string productId)
     {
-        var product = await _context.Products.FindAsync(productId);
+        var transaction = await _context.Database
+            .BeginTransactionAsync();
 
-        if (product is null) return false;
+        // Get the vendor who is deleting the product
+        var vendor = await _context.Vendors
+                        .Include(v => v.Products)
+                        .SingleOrDefaultAsync(v => v.Id.ToString() == vendorId);
 
-        _context.Products.Remove(product);
-        await _context.SaveChangesAsync();
-        return true;
+        if (vendor is null)
+        {
+            return new UpsertProductResponse()
+            {
+                Succeeded = false,
+                Message = "Vendor not found"
+            };
+        }
+
+        if (vendor.Products is null)
+        {
+            return new UpsertProductResponse()
+            {
+                Succeeded = false,
+                Message = "Vendor has no products"
+            };
+        }
+
+        // Get the product to be deleted
+        var product = vendor.Products.SingleOrDefault(
+                            p => p.Id.ToString().Equals(productId, StringComparison.CurrentCultureIgnoreCase));
+
+        if (product is null)
+        {
+            return new UpsertProductResponse()
+            {
+                Succeeded = false,
+                Message = "Product not found"
+            };
+        }
+
+        try
+        {
+            _context.Products.Remove(product);
+            await _context.SaveChangesAsync();
+
+            await transaction.CommitAsync();
+
+            return new UpsertProductResponse()
+            {
+                Succeeded = true,
+                Message = "Product deleted successfully"
+            };
+        }
+        catch (Exception)
+        {
+            await transaction.RollbackAsync();
+            throw;
+        }
     }
 }

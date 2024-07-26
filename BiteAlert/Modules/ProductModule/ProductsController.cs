@@ -102,4 +102,31 @@ public class ProductsController : ControllerBase
             return StatusCode(StatusCodes.Status500InternalServerError, "An unexpected error occurred. Failed to update product.");
         }
     }
+
+    [HttpDelete("{productId}")]
+    public async Task<IActionResult> Delete(string productId)
+    {
+        var vendorId = _userContext.GetUserId();
+
+        if (vendorId is null)
+        {
+            return Unauthorized();
+        }
+
+        try
+        {
+            var result = await _productService.DeleteAsync(vendorId, productId);
+
+            if (result.Succeeded)
+            {
+                return Ok(result);
+            }
+
+            return BadRequest(result);
+        }
+        catch (Exception)
+        {
+            return StatusCode(StatusCodes.Status500InternalServerError, "An unexpected error occurred. Failed to delete product.");
+        }
+    }
 }
