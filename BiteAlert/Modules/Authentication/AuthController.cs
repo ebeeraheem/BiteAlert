@@ -1,6 +1,7 @@
 ﻿// Ignore Spelling: Auth
 
 using BiteAlert.Modules.Utilities;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace BiteAlert.Modules.Authentication;
@@ -17,6 +18,7 @@ public class AuthController : ControllerBase
         _userContext = userContext;
     }
 
+    [AllowAnonymous]
     [HttpPost("register")]
     public async Task<IActionResult> RegisterUser([FromBody] RegisterUserRequest request)
     {
@@ -42,6 +44,7 @@ public class AuthController : ControllerBase
         }
     }
 
+    [AllowAnonymous]
     [HttpPost("login")]
     public async Task<IActionResult> LoginUser([FromBody] LoginUserRequest request)
     {

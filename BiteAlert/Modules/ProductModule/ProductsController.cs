@@ -1,4 +1,5 @@
 ﻿using BiteAlert.Modules.Utilities;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace BiteAlert.Modules.ProductModule;
@@ -15,6 +16,7 @@ public class ProductsController : ControllerBase
         _userContext = userContext;
     }
 
+    [AllowAnonymous]
     [HttpGet]
     public async Task<IActionResult> GetProducts()
     {
@@ -23,6 +25,7 @@ public class ProductsController : ControllerBase
         return Ok(products);
     }
 
+    [AllowAnonymous]
     [HttpGet("{productId}")]
     public async Task<IActionResult> GetProduct(string productId)
     {
