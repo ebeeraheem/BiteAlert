@@ -1,10 +1,17 @@
 using BiteAlert.Infrastructure.Data;
 using BiteAlert.StartupConfigs;
 using Microsoft.EntityFrameworkCore;
+using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
+builder.Host.UseSerilog((context, loggerConfiguration) =>
+{
+    loggerConfiguration.WriteTo.Console();
+    loggerConfiguration.ReadFrom.Configuration(context.Configuration);
+});
+
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 
