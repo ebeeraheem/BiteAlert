@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using System.Reflection;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -27,6 +28,7 @@ var url = builder.Configuration.GetSection("SwaggerDoc:Contact:Url").Value;
 
 builder.Services.AddSwaggerGen(options =>
 {
+    // Add the API info and description
     options.SwaggerDoc("v1", new OpenApiInfo()
     {
         Version = "v1",
@@ -40,6 +42,7 @@ builder.Services.AddSwaggerGen(options =>
         }
     });
 
+    // Add the authorize button in the SwaggerUI
     options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme()
     {
         Type = SecuritySchemeType.Http,
@@ -50,6 +53,7 @@ builder.Services.AddSwaggerGen(options =>
         Description = "Enter your token here:",
     });
 
+    // Add the lock icon to all endpoints in SwaggerUI
     options.AddSecurityRequirement(new OpenApiSecurityRequirement()
     {
         {
@@ -64,6 +68,12 @@ builder.Services.AddSwaggerGen(options =>
             Array.Empty<string>()
         }
     });
+
+    // Add XML comments in SwaggerUI
+    var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
+    var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
+
+    options.IncludeXmlComments(xmlPath);
 });
 
 // Configure database connection string
