@@ -4,6 +4,7 @@ using BiteAlert.Modules.CustomerModule;
 using BiteAlert.Modules.ProductModule;
 using BiteAlert.Modules.Utilities;
 using BiteAlert.Modules.VendorModule;
+using BiteAlert.StartupConfigs;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -94,6 +95,7 @@ builder.Services.AddIdentity<ApplicationUser, IdentityRole<Guid>>(options =>
     options.User.RequireUniqueEmail = true;
     options.Password.RequiredLength = 8;
 })
+    .AddRoles<IdentityRole<Guid>>()
     .AddEntityFrameworkStores<ApplicationDbContext>()
     .AddDefaultTokenProviders();
 
@@ -125,6 +127,13 @@ builder.Services.AddAuthorizationBuilder()
         .Build());
 
 var app = builder.Build();
+
+// Seed roles
+using (var scope = app.Services.CreateScope())
+{
+    var services = scope.ServiceProvider;
+    await Seeder.SeedRoles(services);
+}
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
