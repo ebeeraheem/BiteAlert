@@ -1,5 +1,4 @@
-﻿
-using BiteAlert.Infrastructure.Data;
+﻿using BiteAlert.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 
 namespace BiteAlert.Modules.ProductModule;
@@ -13,6 +12,7 @@ public class ProductService : IProductService
         _context = context;
     }
 
+    // Get a product by it's id
     public async Task<UpsertProductResponse> GetProductByIdAsync(string productId)
     {
         var isValidGuid = Guid.TryParse(productId, out var productGuid);
@@ -45,15 +45,17 @@ public class ProductService : IProductService
         };
     }
 
+    // Get all products
+    // Note: Consider changing this to get a single vendor's products
     public async Task<IEnumerable<Product>> GetProductsAsync()
     {
         return await _context.Products.ToListAsync();
     }
+
+    // Create a new product
     public async Task<UpsertProductResponse> CreateAsync(string vendorId, UpsertProductRequest request)
     {
-        var transaction = await _context.Database
-            .BeginTransactionAsync();
-
+        // Check if the vendorId is a valid Guid
         bool isValidGuid = Guid.TryParse(vendorId, out Guid vendorGuid);
 
         if (isValidGuid is false)
@@ -64,6 +66,9 @@ public class ProductService : IProductService
                 Message = "Invalid vendor id"
             };
         }
+
+        var transaction = await _context.Database
+            .BeginTransactionAsync();
 
         // Get the vendor who is creating the product
         var vendor = await _context.Vendors.FindAsync(vendorGuid);
@@ -111,6 +116,7 @@ public class ProductService : IProductService
         }
     }
 
+    // Update an existing product
     public async Task<UpsertProductResponse> UpdateAsync(string vendorId, string productId, UpsertProductRequest request)
     {
         var transaction = await _context.Database
@@ -130,7 +136,7 @@ public class ProductService : IProductService
             };
         }
 
-        // Get the product to be updated
+        // Return false if the vendor doesn't have any product
         if (vendor.Products is null)
         {
             return new UpsertProductResponse()
@@ -140,8 +146,10 @@ public class ProductService : IProductService
             };
         }
 
+        // Get the product to be updated
         var product = vendor.Products.SingleOrDefault(
-                            p => p.Id.ToString().Equals(productId, StringComparison.CurrentCultureIgnoreCase));
+                            p => p.Id.ToString().Equals(productId, 
+                            StringComparison.CurrentCultureIgnoreCase));
 
         if (product is null)
         {
@@ -152,7 +160,7 @@ public class ProductService : IProductService
             };
         }
 
-        // Update the product
+        // Update only the fields that are not null
         if (request.Name is not null)
         {
             product.Name = request.Name;
@@ -194,6 +202,7 @@ public class ProductService : IProductService
         }
     }
 
+    // Delete a vendor's product
     public async Task<UpsertProductResponse> DeleteAsync(string vendorId, string productId)
     {
         var transaction = await _context.Database
@@ -213,6 +222,7 @@ public class ProductService : IProductService
             };
         }
 
+        // Return false if the vendor doesn't have any product
         if (vendor.Products is null)
         {
             return new UpsertProductResponse()
@@ -224,7 +234,8 @@ public class ProductService : IProductService
 
         // Get the product to be deleted
         var product = vendor.Products.SingleOrDefault(
-                            p => p.Id.ToString().Equals(productId, StringComparison.CurrentCultureIgnoreCase));
+                            p => p.Id.ToString().Equals(productId, 
+                            StringComparison.CurrentCultureIgnoreCase));
 
         if (product is null)
         {
@@ -237,6 +248,7 @@ public class ProductService : IProductService
 
         try
         {
+            // Delete the product
             _context.Products.Remove(product);
             await _context.SaveChangesAsync();
 
