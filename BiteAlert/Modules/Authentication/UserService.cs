@@ -102,11 +102,11 @@ public class UserService(ApplicationDbContext context,
             };
         }
 
-        logger.LogInformation("User {Username} logged in successfully.", user.UserName);
+        logger.LogInformation("User successfully logged in with email: {Email}.", user.Email);
 
         string tokenString = GenerateJwtToken(user);
 
-        logger.LogInformation("Successfully generated JWT token for user {Username}", user.UserName);
+        logger.LogInformation("Successfully generated JWT token for user with email: {Email}.", user.Email);
 
         var response = new LoginUserResponse()
         {
@@ -141,7 +141,7 @@ public class UserService(ApplicationDbContext context,
                 };
             }
 
-            logger.LogInformation("Updating profile information for user: {Username}", user.UserName);
+            logger.LogInformation("Updating profile information for user with email: {Email}.", user.Email);
 
             if (request.FirstName is not null)
             {
@@ -177,8 +177,9 @@ public class UserService(ApplicationDbContext context,
 
             if (result.Succeeded is false)
             {
-                logger.LogWarning("Failed to update profile information for {Username}. Errors: {@Errors}", 
-                            user.UserName,
+                logger.LogWarning(
+                    "Failed to update profile information for user with email: {Email}. Errors: {@Errors}", 
+                            user.Email,
                             result.Errors);
 
                 return new UserProfileResponse()
@@ -189,8 +190,8 @@ public class UserService(ApplicationDbContext context,
                 };
             }
 
-            logger.LogInformation("User {Username} successfully updated their profile information.",
-                        user.UserName);
+            logger.LogInformation("User {Email} successfully updated their profile information.",
+                        user.Email);
 
             await context.SaveChangesAsync();
             await transaction.CommitAsync();
@@ -228,7 +229,7 @@ public class UserService(ApplicationDbContext context,
             };
         }
 
-        logger.LogInformation("Updating password for user {Username}", user.UserName);
+        logger.LogInformation("Updating password for user with email: {Email}", user.Email);
 
         var result = await userManager.ChangePasswordAsync(user,
                                                            request.CurrentPassword,
@@ -272,7 +273,7 @@ public class UserService(ApplicationDbContext context,
     }
     private string GenerateJwtToken(ApplicationUser user)
     {
-        logger.LogInformation("Generating JWT token for user {Username}", user.UserName);
+        logger.LogInformation("Generating JWT token for user with email: {Email}", user.Email);
 
         // Get configuration values
         var key = config.GetValue<string>("Jwt:Key");
@@ -284,7 +285,8 @@ public class UserService(ApplicationDbContext context,
             string.IsNullOrEmpty(issuer) || 
             string.IsNullOrEmpty(audience))
         {
-            logger.LogWarning("Failed to get JWT configuration values for user {Username}", user.UserName);
+            logger.LogWarning("Failed to get JWT configuration values for user with email: {Email}",
+                        user.UserName);
 
             throw new InvalidOperationException("JWT configuration values are missing.");
         }
