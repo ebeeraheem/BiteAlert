@@ -15,7 +15,7 @@ public class AuthController(IUserService userService,
     [HttpPost("register")]
     public async Task<IActionResult> RegisterUser([FromBody] RegisterUserRequest request)
     {
-        logger.LogInformation("RegisterUser method started.");
+        logger.LogInformation("RegisterUser endpoint started for email: {Email}", request.Email);
 
         if (!ModelState.IsValid)
         {
@@ -59,7 +59,7 @@ public class AuthController(IUserService userService,
     [HttpPost("login")]
     public async Task<IActionResult> LoginUser([FromBody] LoginUserRequest request)
     {
-        logger.LogInformation("LoginUser method started.");
+        logger.LogInformation("LoginUser endpoint started for email: {Email}", request.Email);
 
         if (!ModelState.IsValid)
         {
@@ -102,7 +102,7 @@ public class AuthController(IUserService userService,
     [HttpPost("update/profile")]
     public async Task<IActionResult> UpdateProfile([FromBody] UserProfileRequest request)
     {
-        logger.LogInformation("UpdateProfile method started");
+        logger.LogInformation("UpdateProfile endpoint started.");
 
         var userId = userContext.GetUserId();
 
@@ -145,13 +145,13 @@ public class AuthController(IUserService userService,
     [HttpPost("update/password")]
     public async Task<IActionResult> ChangePassword([FromBody] UpdatePasswordRequest request)
     {
-        logger.LogInformation("ChangePassword method started");
+        logger.LogInformation("ChangePassword endpoint started.");
 
         var userId = userContext.GetUserId();
 
         if (userId is null)
         {
-            logger.LogWarning("Unauthorized password change attempt");
+            logger.LogWarning("Unauthorized password change attempt.");
 
             return Unauthorized();
         }

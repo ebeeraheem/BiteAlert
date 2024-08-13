@@ -7,28 +7,17 @@ using System.Text;
 
 namespace BiteAlert.Modules.Authentication;
 
-public class UserService : IUserService
+public class UserService(ApplicationDbContext context,
+                         UserManager<ApplicationUser> userManager,
+                         SignInManager<ApplicationUser> signInManager,
+                         IConfiguration config,
+                         ILogger<UserService> logger) : IUserService
 {
-    private readonly ApplicationDbContext _context;
-    private readonly UserManager<ApplicationUser> _userManager;
-    private readonly SignInManager<ApplicationUser> _signInManager;
-    private readonly IConfiguration _config;
-
-    public UserService(ApplicationDbContext context,
-                        UserManager<ApplicationUser> userManager,
-                        SignInManager<ApplicationUser> signInManager,
-                        IConfiguration config)
-    {
-        _context = context;
-        _userManager = userManager;
-        _signInManager = signInManager;
-        _config = config;
-    }
 
     // Register a new application user
     public async Task<RegisterUserResponse> RegisterUserAsync(RegisterUserRequest request)
     {
-        var transaction = await _context.Database
+        var transaction = await context.Database
             .BeginTransactionAsync();
 
         try
@@ -41,31 +30,37 @@ public class UserService : IUserService
                 LastUpdatedAt = DateTime.UtcNow
             };
 
-            var result = await _userManager.CreateAsync(user, request.Password);
+            logger.LogInformation("Creating user with email: {Email}", request.Email);
 
-            if (!result.Succeeded)
+            var result = await userManager.CreateAsync(user, request.Password);
+
+            if (result.Succeeded is false)
             {
                 var failedResponse = new RegisterUserResponse()
                 {
                     Succeeded = false,
-                    Message = "user registration failed",
+                    Message = "User registration failed.",
                     Errors = result.Errors
                 };
 
+                await transaction.RollbackAsync();
                 return failedResponse;
             }
 
             var successResponse = new RegisterUserResponse()
             {
                 Succeeded = true,
-                Message = "user registered successfully"
+                Message = "User registered successfully."
             };
 
             await transaction.CommitAsync();
             return successResponse;
         }
-        catch (Exception)
+        catch (Exception ex)
         {
+            logger.LogError(ex, "An unexpected error occurred during user registration with email: {Email}",
+                        request.Email);
+
             await transaction.RollbackAsync();
             throw;
         }
@@ -74,34 +69,49 @@ public class UserService : IUserService
     // Login user
     public async Task<LoginUserResponse> LoginUserAsync(LoginUserRequest request)
     {
-        var user = await _userManager.FindByEmailAsync(request.Email);
+        logger.LogInformation("Searching for user with email: {Email}", request.Email);
+
+        var user = await userManager.FindByEmailAsync(request.Email);
 
         if (user is null)
         {
+            logger.LogWarning("User with email {Email} not found", request.Email);
+
             return new LoginUserResponse()
             {
                 Succeeded = false,
-                Message = "user not found"
+                Message = "User not found"
             };
         }
 
-        var result = await _signInManager.PasswordSignInAsync(user, request.Password, false, false);
+        logger.LogInformation("Attempting password sign in for user with email {Email}", user.Email);
 
-        if (!result.Succeeded)
+        var result = await signInManager.PasswordSignInAsync(user,
+                                                             request.Password,
+                                                             false,
+                                                             false);
+
+        if (result.Succeeded is false)
         {
+            logger.LogWarning("Invalid login credentials for email {Email}", user.Email);
+
             return new LoginUserResponse()
             {
                 Succeeded = false,
-                Message = "invalid credentials"
+                Message = "Invalid credentials"
             };
         }
+
+        logger.LogInformation("User {Username} logged in successfully.", user.UserName);
 
         string tokenString = GenerateJwtToken(user);
+
+        logger.LogInformation("Successfully generated JWT token for user {Username}", user.UserName);
 
         var response = new LoginUserResponse()
         {
             Succeeded = true,
-            Message = "user logged in successfully",
+            Message = "User logged in successfully",
             Token = tokenString
         };
 
@@ -111,21 +121,27 @@ public class UserService : IUserService
     // Update user profile info
     public async Task<UserProfileResponse> UpdateProfileAsync(string userId, UserProfileRequest request)
     {
-        var transaction = await _context.Database
+        var transaction = await context.Database
             .BeginTransactionAsync();
 
         try
         {
-            var user = await _userManager.FindByIdAsync(userId);
+            logger.LogInformation("Searching for user by Id: {Id}", userId);
+
+            var user = await userManager.FindByIdAsync(userId);
 
             if (user is null)
             {
+                logger.LogWarning("User with Id {Id} not found", userId);
+
                 return new UserProfileResponse()
                 {
                     Succeeded = false,
                     Message = "User not found"
                 };
             }
+
+            logger.LogInformation("Updating profile information for user: {Username}", user.UserName);
 
             if (request.FirstName is not null)
             {
@@ -157,10 +173,14 @@ public class UserService : IUserService
                 user.ProfilePictureUrl = request.ProfilePictureUrl;
             }
 
-            var result = await _userManager.UpdateAsync(user);
+            var result = await userManager.UpdateAsync(user);
 
             if (result.Succeeded is false)
             {
+                logger.LogWarning("Failed to update profile information for {Username}. Errors: {@Errors}", 
+                            user.UserName,
+                            result.Errors);
+
                 return new UserProfileResponse()
                 {
                     Succeeded = false,
@@ -169,8 +189,10 @@ public class UserService : IUserService
                 };
             }
 
-            await _context.SaveChangesAsync();
+            logger.LogInformation("User {Username} successfully updated their profile information.",
+                        user.UserName);
 
+            await context.SaveChangesAsync();
             await transaction.CommitAsync();
 
             return new UserProfileResponse()
@@ -179,8 +201,11 @@ public class UserService : IUserService
                 Message = "User profile updated successfully."
             };
         }
-        catch (Exception)
+        catch (Exception ex)
         {
+            logger.LogError(ex, "An error occurred while updating profile information for user with Id: {Id}", 
+                        userId);
+
             await transaction.RollbackAsync();
             throw;
         }
@@ -188,10 +213,14 @@ public class UserService : IUserService
 
     public async Task<UserProfileResponse> UpdatePasswordAsync(string userId, UpdatePasswordRequest request)
     {
-        var user = await _userManager.FindByIdAsync(userId);
+        logger.LogInformation("Searching for user with Id: {Id}", userId);
+
+        var user = await userManager.FindByIdAsync(userId);
 
         if (user is null)
         {
+            logger.LogWarning("User with Id {Id} not found", userId);
+
             return new UserProfileResponse()
             {
                 Succeeded = false,
@@ -199,7 +228,11 @@ public class UserService : IUserService
             };
         }
 
-        var result = await _userManager.ChangePasswordAsync(user, request.CurrentPassword, request.NewPassword);
+        logger.LogInformation("Updating password for user {Username}", user.UserName);
+
+        var result = await userManager.ChangePasswordAsync(user,
+                                                           request.CurrentPassword,
+                                                           request.NewPassword);
 
         if (result.Succeeded is false)
         {
@@ -239,16 +272,20 @@ public class UserService : IUserService
     }
     private string GenerateJwtToken(ApplicationUser user)
     {
+        logger.LogInformation("Generating JWT token for user {Username}", user.UserName);
+
         // Get configuration values
-        var key = _config.GetValue<string>("Jwt:Key");
-        var issuer = _config.GetValue<string>("Jwt:Issuer");
-        var audience = _config.GetValue<string>("Jwt:Audience");
+        var key = config.GetValue<string>("Jwt:Key");
+        var issuer = config.GetValue<string>("Jwt:Issuer");
+        var audience = config.GetValue<string>("Jwt:Audience");
 
         // Ensure configuration values are not null or empty
         if (string.IsNullOrEmpty(key) || 
             string.IsNullOrEmpty(issuer) || 
             string.IsNullOrEmpty(audience))
         {
+            logger.LogWarning("Failed to get JWT configuration values for user {Username}", user.UserName);
+
             throw new InvalidOperationException("JWT configuration values are missing.");
         }
 
