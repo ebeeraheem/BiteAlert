@@ -4,34 +4,36 @@ using Microsoft.AspNetCore.Mvc;
 namespace BiteAlert.Modules.CustomerModule;
 [Route("api/[controller]")]
 [ApiController]
-public class CustomersController : ControllerBase
+public class CustomersController(ICustomerService customerService,
+                                 UserContextService userContext,
+                                 ILogger<CustomersController> logger): ControllerBase
 {
-    private readonly ICustomerService _customerService;
-    private readonly UserContextService _userContext;
-
-    public CustomersController(ICustomerService customerService, UserContextService userContext)
-    {
-        _customerService = customerService;
-        _userContext = userContext;
-    }
-
     [HttpPost("register")]
     public async Task<IActionResult> RegisterCustomer()
     {
-        var userId = _userContext.GetUserId();
+        logger.LogInformation("RegisterCustomer endpoint started.");
+
+        var userId = userContext.GetUserId();
 
         if (userId is null)
         {
+            logger.LogWarning("Unauthorized customer registration attempt.");
+
             return Unauthorized();
         }
 
-        var result = await _customerService
-                                        .RegisterCustomerAsync(userId);
+        logger.LogInformation("Attempting to register customer with Id {Id}", userId);
+
+        var result = await customerService.RegisterCustomerAsync(userId);
 
         if (result.Succeeded)
         {
+            logger.LogInformation("User with Id {Id} successfully registered as a customer", userId);
+
             return Ok(result);
         }
+
+        logger.LogWarning("Customer registration failed for user with Id {Id}", userId);
 
         return BadRequest(result);
     }
@@ -39,10 +41,14 @@ public class CustomersController : ControllerBase
     [HttpGet("by-id/{customerId}")]
     public async Task<IActionResult> GetCustomerById(string customerId)
     {
-        var customer = await _customerService.GetCustomerById(customerId);
+        logger.LogInformation("GetCustomerById endpoint started.");
+
+        var customer = await customerService.GetCustomerById(customerId);
 
         if (customer is null)
         {
+            logger.LogWarning("Customer with Id {Id} not found", customerId);
+
             return NotFound("Customer not found");
         }
 

@@ -5,29 +5,28 @@ using Microsoft.EntityFrameworkCore;
 
 namespace BiteAlert.Modules.CustomerModule;
 
-public class CustomerService : ICustomerService
+public class CustomerService(UserManager<ApplicationUser> userManager,
+                             ApplicationDbContext context,
+                             ILogger<CustomerService> logger) : ICustomerService
 {
-    private readonly UserManager<ApplicationUser> _userManager;
-    private readonly ApplicationDbContext _context;
-
-    public CustomerService(UserManager<ApplicationUser> userManager, ApplicationDbContext context)
-    {
-        _userManager = userManager;
-        _context = context;
-    }
-
     public async Task<Customer?> GetCustomerById(string userId)
     {
-        return await _context.Customers
-            .SingleOrDefaultAsync(u => u.Id.ToString() == userId);
+        logger.LogInformation("Searching for customer with Id {Id}", userId);
+
+        return await context.Customers.SingleOrDefaultAsync(
+            u => u.Id.ToString() == userId);
     }
 
     public async Task<UpsertCustomerResponse> RegisterCustomerAsync(string userId)
     {
-        var user = await _userManager.FindByIdAsync(userId);
+        logger.LogInformation("Searching for user by Id {Id}", userId);
+
+        var user = await userManager.FindByIdAsync(userId);
 
         if (user is null)
         {
+            logger.LogWarning("User with Id {Id} not found", userId);
+
             return new UpsertCustomerResponse()
             {
                 Succeeded = false,
@@ -39,6 +38,8 @@ public class CustomerService : ICustomerService
 
         if (!isValidGuid)
         {
+            logger.LogWarning("Invalid user Id: {Id}", userId);
+
             return new UpsertCustomerResponse()
             {
                 Succeeded = false,
@@ -47,10 +48,12 @@ public class CustomerService : ICustomerService
         }
 
         // Check if the user is a vendor
-        var userIsVendor = await _context.Vendors.FindAsync(userGuid);
+        var userIsVendor = await context.Vendors.FindAsync(userGuid);
 
         if (userIsVendor is not null)
         {
+            logger.LogWarning("User with Id {Id} is already registered as a vendor.", userGuid);
+
             return new UpsertCustomerResponse()
             {
                 Succeeded = false,
@@ -59,14 +62,16 @@ public class CustomerService : ICustomerService
         }
 
         // Check if the user is already a customer
-        var userIsCustomer = await _context.Customers.FindAsync(userGuid);
+        var userIsCustomer = await context.Customers.FindAsync(userGuid);
 
         if (userIsCustomer is not null)
         {
+            logger.LogWarning("User with Id {Id} is already registered as a customer.", userGuid);
+
             return new UpsertCustomerResponse()
             {
                 Succeeded = false,
-                Message = "user is already a customer"
+                Message = "User is already a customer."
             };
         }
 
@@ -76,13 +81,13 @@ public class CustomerService : ICustomerService
             User = user
         };
 
-        await _context.Customers.AddAsync(customer);
-        await _context.SaveChangesAsync();
+        await context.Customers.AddAsync(customer);
+        await context.SaveChangesAsync();
 
         return new UpsertCustomerResponse()
         {
             Succeeded = true,
-            Message = "customer registered successfully"
+            Message = "Customer registered successfully."
         };
     }
 }
