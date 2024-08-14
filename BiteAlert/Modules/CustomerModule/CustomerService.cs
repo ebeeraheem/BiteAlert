@@ -11,7 +11,7 @@ public class CustomerService(UserManager<ApplicationUser> userManager,
 {
     public async Task<Customer?> GetCustomerById(string userId)
     {
-        logger.LogInformation("Searching for customer with Id {Id}", userId);
+        logger.LogInformation("Searching for customer by Id {Id}", userId);
 
         return await context.Customers.SingleOrDefaultAsync(
             u => u.Id.ToString() == userId);
@@ -19,8 +19,6 @@ public class CustomerService(UserManager<ApplicationUser> userManager,
 
     public async Task<UpsertCustomerResponse> RegisterCustomerAsync(string userId)
     {
-        logger.LogInformation("Searching for user by Id {Id}", userId);
-
         var user = await userManager.FindByIdAsync(userId);
 
         if (user is null)
@@ -52,7 +50,7 @@ public class CustomerService(UserManager<ApplicationUser> userManager,
 
         if (userIsVendor is not null)
         {
-            logger.LogWarning("User with Id {Id} is already registered as a vendor.", userGuid);
+            logger.LogWarning("User {Id} is already registered as a vendor.", userGuid);
 
             return new UpsertCustomerResponse()
             {
@@ -66,7 +64,7 @@ public class CustomerService(UserManager<ApplicationUser> userManager,
 
         if (userIsCustomer is not null)
         {
-            logger.LogWarning("User with Id {Id} is already registered as a customer.", userGuid);
+            logger.LogWarning("User {Id} is already registered as a customer.", userGuid);
 
             return new UpsertCustomerResponse()
             {

@@ -11,8 +11,6 @@ public class CustomersController(ICustomerService customerService,
     [HttpPost("register")]
     public async Task<IActionResult> RegisterCustomer()
     {
-        logger.LogInformation("RegisterCustomer endpoint started.");
-
         var userId = userContext.GetUserId();
 
         if (userId is null)
@@ -28,12 +26,14 @@ public class CustomersController(ICustomerService customerService,
 
         if (result.Succeeded)
         {
-            logger.LogInformation("User with Id {Id} successfully registered as a customer", userId);
+            logger.LogInformation("User {Id} successfully registered as a customer", userId);
 
             return Ok(result);
         }
 
-        logger.LogWarning("Customer registration failed for user with Id {Id}", userId);
+        logger.LogWarning("Customer registration failed. User ID: {Id}. Error: {Error}",
+                    userId,
+                    result.Message);
 
         return BadRequest(result);
     }
@@ -41,8 +41,6 @@ public class CustomersController(ICustomerService customerService,
     [HttpGet("by-id/{customerId}")]
     public async Task<IActionResult> GetCustomerById(string customerId)
     {
-        logger.LogInformation("GetCustomerById endpoint started.");
-
         var customer = await customerService.GetCustomerById(customerId);
 
         if (customer is null)
