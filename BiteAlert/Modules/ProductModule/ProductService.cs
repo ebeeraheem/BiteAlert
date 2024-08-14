@@ -3,22 +3,16 @@ using Microsoft.EntityFrameworkCore;
 
 namespace BiteAlert.Modules.ProductModule;
 
-public class ProductService : IProductService
+public class ProductService(ApplicationDbContext context, ILogger<ProductService> logger) : IProductService
 {
-    private readonly ApplicationDbContext _context;
-
-    public ProductService(ApplicationDbContext context)
-    {
-        _context = context;
-    }
-
-    // Get a product by it's id
     public async Task<UpsertProductResponse> GetProductByIdAsync(string productId)
     {
         var isValidGuid = Guid.TryParse(productId, out var productGuid);
 
         if (isValidGuid is false)
         {
+            logger.LogWarning("Invalid product Id provided. Id: {Id}", productId);
+
             return new UpsertProductResponse()
             {
                 Succeeded = false,
@@ -26,10 +20,14 @@ public class ProductService : IProductService
             };
         }
 
-        var product = await _context.Products.FindAsync(productGuid);
+        logger.LogInformation("Searching for product with Id {Id}", productId);
+
+        var product = await context.Products.FindAsync(productGuid);
 
         if (product is null)
         {
+            logger.LogWarning("Product with Id {Id} not found", productId);
+
             return new UpsertProductResponse()
             {
                 Succeeded = false,
@@ -40,7 +38,7 @@ public class ProductService : IProductService
         return new UpsertProductResponse()
         {
             Succeeded = true,
-            Message = "success",
+            Message = "Success",
             Product = product
         };
     }
@@ -49,7 +47,7 @@ public class ProductService : IProductService
     // Note: Consider changing this to get a single vendor's products
     public async Task<IEnumerable<Product>> GetProductsAsync()
     {
-        return await _context.Products.ToListAsync();
+        return await context.Products.ToListAsync();
     }
 
     // Create a new product
@@ -60,6 +58,8 @@ public class ProductService : IProductService
 
         if (isValidGuid is false)
         {
+            logger.LogWarning("Invalid vendor Id: {Id}", vendorId);
+
             return new UpsertProductResponse()
             {
                 Succeeded = false,
@@ -67,14 +67,18 @@ public class ProductService : IProductService
             };
         }
 
-        var transaction = await _context.Database
+        var transaction = await context.Database
             .BeginTransactionAsync();
 
         // Get the vendor who is creating the product
-        var vendor = await _context.Vendors.FindAsync(vendorGuid);
+        logger.LogInformation("Searching for vendor with Id {Id}", vendorGuid);
+
+        var vendor = await context.Vendors.FindAsync(vendorGuid);
 
         if (vendor is null)
         {
+            logger.LogWarning("vendor with Id {Id} not found", vendorGuid);
+
             return new UpsertProductResponse()
             {
                 Succeeded = false,
@@ -83,6 +87,8 @@ public class ProductService : IProductService
         }
 
         // Create a new product
+        logger.LogInformation("Creating a new product by vendor with Id {Id}", vendorGuid);
+
         var product = new Product()
         {
             Name = request.Name,
@@ -97,8 +103,8 @@ public class ProductService : IProductService
         try
         {
             // Save the product
-            await _context.Products.AddAsync(product);
-            await _context.SaveChangesAsync();
+            await context.Products.AddAsync(product);
+            await context.SaveChangesAsync();
 
             await transaction.CommitAsync();
 
@@ -109,26 +115,33 @@ public class ProductService : IProductService
                 Product = product
             };
         }
-        catch (Exception)
+        catch (Exception ex)
         {
+            logger.LogError(ex, "An unexpected error occurred during product creation by vendor: {Id}", 
+                        vendorId);
+
             await transaction.RollbackAsync();
             throw;
         }
     }
 
     // Update an existing product
-    public async Task<UpsertProductResponse> UpdateAsync(string vendorId, string productId, UpsertProductRequest request)
+    public async Task<UpsertProductResponse> UpdateAsync(string vendorId,
+                                                         string productId,
+                                                         UpsertProductRequest request)
     {
-        var transaction = await _context.Database
+        var transaction = await context.Database
             .BeginTransactionAsync();
 
         // Get the vendor who is updating the product
-        var vendor = await _context.Vendors
+        var vendor = await context.Vendors
                         .Include(v => v.Products)
                         .SingleOrDefaultAsync(v => v.Id.ToString() == vendorId);
 
         if (vendor is null)
         {
+            logger.LogWarning("Vendor with Id {Id} not found.", vendorId);
+
             return new UpsertProductResponse()
             {
                 Succeeded = false,
@@ -139,6 +152,7 @@ public class ProductService : IProductService
         // Return false if the vendor doesn't have any product
         if (vendor.Products is null)
         {
+            logger.LogWarning("Vendor {Id} has no products.", vendorId);
             return new UpsertProductResponse()
             {
                 Succeeded = false,
@@ -153,6 +167,10 @@ public class ProductService : IProductService
 
         if (product is null)
         {
+            logger.LogWarning("Product {Id} not found. Vendor ID: {VendorId}",
+                        productId,
+                        vendorId);
+
             return new UpsertProductResponse()
             {
                 Succeeded = false,
@@ -161,31 +179,18 @@ public class ProductService : IProductService
         }
 
         // Update only the fields that are not null
-        if (request.Name is not null)
-        {
-            product.Name = request.Name;
-        }
+        logger.LogInformation("Vendor {VendorId} updating product {ProductId}", vendorId, productId);
 
-        if (request.Description is not null)
-        {
-            product.Description = request.Description;
-        }
-
-        if (request.Price != product.Price)
-        {
-            product.Price = request.Price;
-        }
-
-        if (request.ImageUrl is not null)
-        {
-            product.ImageUrl = request.ImageUrl;
-        }
+        if (request.Name is not null) product.Name = request.Name;
+        if (request.Description is not null) product.Description = request.Description;
+        if (request.Price != product.Price) product.Price = request.Price;
+        if (request.ImageUrl is not null) product.ImageUrl = request.ImageUrl;
 
         try
         {
             // Update the product
-            _context.Products.Update(product);
-            await _context.SaveChangesAsync();
+            context.Products.Update(product);
+            await context.SaveChangesAsync();
 
             await transaction.CommitAsync();
 
@@ -195,8 +200,12 @@ public class ProductService : IProductService
                 Message = "Product updated successfully"
             };
         }
-        catch (Exception)
+        catch (Exception ex)
         {
+            logger.LogError(ex, "An error occurred while vendor {VendorId} was updating product {ProductId}",
+                        vendorId,
+                        productId);
+
             await transaction.RollbackAsync();
             throw;
         }
@@ -205,16 +214,18 @@ public class ProductService : IProductService
     // Delete a vendor's product
     public async Task<UpsertProductResponse> DeleteAsync(string vendorId, string productId)
     {
-        var transaction = await _context.Database
+        var transaction = await context.Database
             .BeginTransactionAsync();
 
         // Get the vendor who is deleting the product
-        var vendor = await _context.Vendors
+        var vendor = await context.Vendors
                         .Include(v => v.Products)
                         .SingleOrDefaultAsync(v => v.Id.ToString() == vendorId);
 
         if (vendor is null)
         {
+            logger.LogWarning("Vendor with Id {Id} not found.", vendorId);
+
             return new UpsertProductResponse()
             {
                 Succeeded = false,
@@ -225,6 +236,8 @@ public class ProductService : IProductService
         // Return false if the vendor doesn't have any product
         if (vendor.Products is null)
         {
+            logger.LogWarning("Vendor {Id} has no products.", vendorId);
+
             return new UpsertProductResponse()
             {
                 Succeeded = false,
@@ -239,6 +252,10 @@ public class ProductService : IProductService
 
         if (product is null)
         {
+            logger.LogWarning("Product {Id} not found. Vendor ID: {VendorId}",
+                        productId,
+                        vendorId);
+
             return new UpsertProductResponse()
             {
                 Succeeded = false,
@@ -249,8 +266,10 @@ public class ProductService : IProductService
         try
         {
             // Delete the product
-            _context.Products.Remove(product);
-            await _context.SaveChangesAsync();
+            logger.LogInformation("Vendor {VendorId} deleting product {ProductId}", vendorId, productId);
+
+            context.Products.Remove(product);
+            await context.SaveChangesAsync();
 
             await transaction.CommitAsync();
 
@@ -260,8 +279,12 @@ public class ProductService : IProductService
                 Message = "Product deleted successfully"
             };
         }
-        catch (Exception)
+        catch (Exception ex)
         {
+            logger.LogError(ex, "An error occurred while vendor {VendorId} was deleting product {ProductId}",
+                        vendorId,
+                        productId);
+
             await transaction.RollbackAsync();
             throw;
         }
