@@ -1,3 +1,4 @@
+using BiteAlert.Exceptions;
 using BiteAlert.Infrastructure.Data;
 using BiteAlert.StartupConfigs;
 using Microsoft.EntityFrameworkCore;
@@ -14,6 +15,10 @@ builder.Host.UseSerilog((context, loggerConfiguration) =>
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
+
+// Add global exception handler
+builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
+builder.Services.AddProblemDetails();
 
 // Configure database connection string
 builder.Services.AddDbContext<ApplicationDbContext>(
@@ -44,6 +49,8 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
+app.UseExceptionHandler();
 
 app.UseAuthorization();
 

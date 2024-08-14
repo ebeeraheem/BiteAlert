@@ -17,7 +17,7 @@ public class AuthController(IUserService userService,
     {
         if (!ModelState.IsValid)
         {
-            logger.LogWarning("ModelState is invalid: {ModelStateErrors}", 
+            logger.LogWarning("ModelState is invalid: {ModelStateErrors}",
                         ModelState.Values.SelectMany(v => v.Errors)
                         .Select(e => e.ErrorMessage));
 
