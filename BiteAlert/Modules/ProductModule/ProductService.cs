@@ -7,6 +7,8 @@ public class ProductService(ApplicationDbContext context, ILogger<ProductService
 {
     public async Task<UpsertProductResponse> GetProductByIdAsync(string productId)
     {
+        logger.LogInformation("Searching for product with Id {Id}", productId);
+
         var isValidGuid = Guid.TryParse(productId, out var productGuid);
 
         if (isValidGuid is false)
@@ -19,8 +21,6 @@ public class ProductService(ApplicationDbContext context, ILogger<ProductService
                 Message = "Invalid product id."
             };
         }
-
-        logger.LogInformation("Searching for product with Id {Id}", productId);
 
         var product = await context.Products.FindAsync(productGuid);
 
@@ -71,8 +71,6 @@ public class ProductService(ApplicationDbContext context, ILogger<ProductService
             .BeginTransactionAsync();
 
         // Get the vendor who is creating the product
-        logger.LogInformation("Searching for vendor with Id {Id}", vendorGuid);
-
         var vendor = await context.Vendors.FindAsync(vendorGuid);
 
         if (vendor is null)

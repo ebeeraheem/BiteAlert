@@ -22,8 +22,6 @@ public class ProductsController(IProductService productService,
     [HttpGet("{productId}")]
     public async Task<IActionResult> GetProduct(string productId)
     {
-        logger.LogInformation("GetProduct endpoint started for product with Id {Id}", productId);
-
         var result = await productService.GetProductByIdAsync(productId);
 
         if (result.Succeeded)
@@ -39,8 +37,6 @@ public class ProductsController(IProductService productService,
     [HttpPost]
     public async Task<IActionResult> Create(UpsertProductRequest request)
     {
-        logger.LogInformation("Create product endpoint started.");
-
         var vendorId = userContext.GetUserId();
 
         if (vendorId is null)
