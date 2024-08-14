@@ -14,16 +14,14 @@ public static class Seeder
         using var scope = serviceProvider.CreateScope();
 
         var roleManager = scope.ServiceProvider
-                .GetRequiredService<RoleManager<IdentityRole<Guid>>>();
+                        .GetRequiredService<RoleManager<IdentityRole<Guid>>>();
 
         string[] roles = ["Admin", "Vendor", "Customer"];
 
-        foreach (var role in roles)
+        foreach (var role in roles.Where(role => roleManager
+                                        .RoleExistsAsync(role).Result is false))
         {
-            if (await roleManager.RoleExistsAsync(role) is false)
-            {
-                await roleManager.CreateAsync(new IdentityRole<Guid>(role));
-            }
+            await roleManager.CreateAsync(new IdentityRole<Guid>(role));
         }
     }
 
@@ -76,7 +74,9 @@ public static class Seeder
             LastName = adminLastName,
             UserName = adminUserName,
             PhoneNumber = adminPhoneNumber,
+            PhoneNumberConfirmed = true,
             Email = adminEmail,
+            EmailConfirmed = true,
             DateOfBirth = DateTime.Parse(adminDateOfBirth, new CultureInfo("en-US")),
             CreatedAt = DateTime.UtcNow,
             LastUpdatedAt = DateTime.UtcNow
