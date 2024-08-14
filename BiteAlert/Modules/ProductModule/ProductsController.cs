@@ -48,7 +48,7 @@ public class ProductsController(IProductService productService,
 
         if (!ModelState.IsValid)
         {
-            logger.LogWarning("ModelState is invalid: {ModelStateErrors}",
+            logger.LogWarning("Create product ModelState is invalid: {ModelStateErrors}",
                         ModelState.Values.SelectMany(v => v.Errors)
                         .Select(e => e.ErrorMessage));
 
@@ -102,7 +102,7 @@ public class ProductsController(IProductService productService,
 
         if (!ModelState.IsValid)
         {
-            logger.LogWarning("ModelState is invalid: {ModelStateErrors}",
+            logger.LogWarning("Update product ModelState is invalid: {ModelStateErrors}",
                         ModelState.Values.SelectMany(v => v.Errors)
                         .Select(e => e.ErrorMessage));
 

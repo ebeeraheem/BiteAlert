@@ -22,7 +22,7 @@ public class VendorsController(IVendorService vendorService,
 
         if (!ModelState.IsValid)
         {
-            logger.LogWarning("ModelState is invalid: {ModelStateErrors}",
+            logger.LogWarning("Register vendor ModelState is invalid: {ModelStateErrors}",
                         ModelState.Values.SelectMany(v => v.Errors)
                         .Select(e => e.ErrorMessage));
 
@@ -107,7 +107,7 @@ public class VendorsController(IVendorService vendorService,
 
         if (!ModelState.IsValid)
         {
-            logger.LogWarning("ModelState is invalid: {ModelStateErrors}",
+            logger.LogWarning("Update business info ModelState is invalid: {ModelStateErrors}",
                         ModelState.Values.SelectMany(v => v.Errors)
                         .Select(e => e.ErrorMessage));
 
