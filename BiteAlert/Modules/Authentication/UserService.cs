@@ -30,7 +30,7 @@ public class UserService(ApplicationDbContext context,
                 LastUpdatedAt = DateTime.UtcNow
             };
 
-            logger.LogInformation("Creating user with email: {Email}", request.Email);
+            logger.LogInformation("Attempting to register user with email: {Email}", request.Email);
 
             var result = await userManager.CreateAsync(user, request.Password);
 
@@ -69,8 +69,6 @@ public class UserService(ApplicationDbContext context,
     // Login user
     public async Task<LoginUserResponse> LoginUserAsync(LoginUserRequest request)
     {
-        logger.LogInformation("Searching for user with email: {Email}", request.Email);
-
         var user = await userManager.FindByEmailAsync(request.Email);
 
         if (user is null)
@@ -126,8 +124,6 @@ public class UserService(ApplicationDbContext context,
 
         try
         {
-            logger.LogInformation("Searching for user by Id: {Id}", userId);
-
             var user = await userManager.FindByIdAsync(userId);
 
             if (user is null)
@@ -143,42 +139,19 @@ public class UserService(ApplicationDbContext context,
 
             logger.LogInformation("Updating profile information for user with email: {Email}.", user.Email);
 
-            if (request.FirstName is not null)
-            {
-                user.FirstName = request.FirstName;
-            }
-
-            if (request.LastName is not null)
-            {
-                user.LastName = request.LastName;
-            }
-
-            if (request.UserName is not null)
-            {
-                user.UserName = request.UserName;
-            }
-
-            if (request.PhoneNumber is not null)
-            {
-                user.PhoneNumber = request.PhoneNumber;
-            }
-
-            if (request.DateOfBirth is not null)
-            {
-                user.DateOfBirth = request.DateOfBirth;
-            }
-
-            if (request.ProfilePictureUrl is not null)
-            {
-                user.ProfilePictureUrl = request.ProfilePictureUrl;
-            }
+            if (request.FirstName is not null) user.FirstName = request.FirstName;
+            if (request.LastName is not null) user.LastName = request.LastName;
+            if (request.UserName is not null) user.UserName = request.UserName;
+            if (request.PhoneNumber is not null) user.PhoneNumber = request.PhoneNumber;
+            if (request.DateOfBirth is not null) user.DateOfBirth = request.DateOfBirth;
+            if (request.ProfilePictureUrl is not null) user.ProfilePictureUrl = request.ProfilePictureUrl;
 
             var result = await userManager.UpdateAsync(user);
 
             if (result.Succeeded is false)
             {
                 logger.LogWarning(
-                    "Failed to update profile information for user with email: {Email}. Errors: {@Errors}", 
+                    "Failed to update profile information for user with email: {Email}. Errors: {@Errors}",
                             user.Email,
                             result.Errors);
 
@@ -189,9 +162,6 @@ public class UserService(ApplicationDbContext context,
                     Errors = result.Errors
                 };
             }
-
-            logger.LogInformation("User {Email} successfully updated their profile information.",
-                        user.Email);
 
             await context.SaveChangesAsync();
             await transaction.CommitAsync();
@@ -204,7 +174,8 @@ public class UserService(ApplicationDbContext context,
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, "An error occurred while updating profile information for user with Id: {Id}", 
+            logger.LogError(ex, 
+                "An error occurred while updating profile information for user with Id: {Id}", 
                         userId);
 
             await transaction.RollbackAsync();
@@ -214,8 +185,6 @@ public class UserService(ApplicationDbContext context,
 
     public async Task<UserProfileResponse> UpdatePasswordAsync(string userId, UpdatePasswordRequest request)
     {
-        logger.LogInformation("Searching for user with Id: {Id}", userId);
-
         var user = await userManager.FindByIdAsync(userId);
 
         if (user is null)
@@ -229,7 +198,7 @@ public class UserService(ApplicationDbContext context,
             };
         }
 
-        logger.LogInformation("Updating password for user with email: {Email}", user.Email);
+        logger.LogInformation("Updating password for user with Id: {Id}", user.Id);
 
         var result = await userManager.ChangePasswordAsync(user,
                                                            request.CurrentPassword,
@@ -240,7 +209,7 @@ public class UserService(ApplicationDbContext context,
             return new UserProfileResponse()
             {
                 Succeeded = false,
-                Message = "Failed to change password",
+                Message = "Failed to update password.",
                 Errors = result.Errors
             };
         }
@@ -248,7 +217,7 @@ public class UserService(ApplicationDbContext context,
         return new UserProfileResponse()
         {
             Succeeded = true,
-             Message = "Password updated successfully"
+             Message = "Password updated successfully."
         };
     }
 
@@ -293,8 +262,8 @@ public class UserService(ApplicationDbContext context,
 
         var claims = new List<Claim>()
         {
-            new(ClaimTypes.Email, user.Email),
-            new(ClaimTypes.Name, user.UserName),
+            new(ClaimTypes.Email, user.Email!),
+            new(ClaimTypes.Name, user.UserName!),
             new(ClaimTypes.NameIdentifier, user.Id.ToString())
         };
 

@@ -15,8 +15,6 @@ public class AuthController(IUserService userService,
     [HttpPost("register")]
     public async Task<IActionResult> RegisterUser([FromBody] RegisterUserRequest request)
     {
-        logger.LogInformation("RegisterUser endpoint started for email: {Email}", request.Email);
-
         if (!ModelState.IsValid)
         {
             logger.LogWarning("ModelState is invalid: {ModelStateErrors}", 
@@ -28,8 +26,6 @@ public class AuthController(IUserService userService,
 
         try
         {
-            logger.LogInformation("Attempting to register user with email: {Email}", request.Email);
-
             var result = await userService.RegisterUserAsync(request);
 
             if (result.Errors is null)
@@ -59,8 +55,6 @@ public class AuthController(IUserService userService,
     [HttpPost("login")]
     public async Task<IActionResult> LoginUser([FromBody] LoginUserRequest request)
     {
-        logger.LogInformation("LoginUser endpoint started for email: {Email}", request.Email);
-
         if (!ModelState.IsValid)
         {
             logger.LogWarning("ModelState is invalid: {ModelStateErrors}",
@@ -102,8 +96,6 @@ public class AuthController(IUserService userService,
     [HttpPost("update/profile")]
     public async Task<IActionResult> UpdateProfile([FromBody] UserProfileRequest request)
     {
-        logger.LogInformation("UpdateProfile endpoint started.");
-
         var userId = userContext.GetUserId();
 
         if (userId is null)
@@ -134,7 +126,8 @@ public class AuthController(IUserService userService,
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, "An unexpected error occurred while updating profile for user with Id: {Id}",
+            logger.LogError(ex, 
+                "An unexpected error occurred while updating profile for user with Id: {Id}",
                         userId);
 
             return StatusCode(StatusCodes.Status500InternalServerError, 
@@ -145,8 +138,6 @@ public class AuthController(IUserService userService,
     [HttpPost("update/password")]
     public async Task<IActionResult> ChangePassword([FromBody] UpdatePasswordRequest request)
     {
-        logger.LogInformation("ChangePassword endpoint started.");
-
         var userId = userContext.GetUserId();
 
         if (userId is null)
@@ -160,7 +151,8 @@ public class AuthController(IUserService userService,
 
         if (request.CurrentPassword == request.NewPassword)
         {
-            logger.LogWarning("New password cannot be the same as old password");
+            logger.LogWarning("New password cannot be the same as old password. User ID: {Id}",
+                        userId);
 
             return BadRequest("New password cannot be the same as old password");
         }
