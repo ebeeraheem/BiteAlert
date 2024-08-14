@@ -1,6 +1,7 @@
 ﻿// Ignore Spelling: Auth
 
 using BiteAlert.Modules.Utilities;
+using FluentValidation;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -9,7 +10,8 @@ namespace BiteAlert.Modules.Authentication;
 [ApiController]
 public class AuthController(IUserService userService,
                             UserContextService userContext,
-                            ILogger<AuthController> logger) : ControllerBase
+                            ILogger<AuthController> logger,
+                            IValidator<LoginUserRequest> validator) : ControllerBase
 {
     [AllowAnonymous]
     [HttpPost("register")]
@@ -55,13 +57,14 @@ public class AuthController(IUserService userService,
     [HttpPost("login")]
     public async Task<IActionResult> LoginUser([FromBody] LoginUserRequest request)
     {
-        if (!ModelState.IsValid)
-        {
-            logger.LogWarning("Login user ModelState is invalid: {ModelStateErrors}",
-                        ModelState.Values.SelectMany(v => v.Errors)
-                        .Select(e => e.ErrorMessage));
+        var validationResult = validator.Validate(request);
 
-            return BadRequest(ModelState);
+        if (validationResult.IsValid is false)
+        {
+            logger.LogWarning("Login user request failed validation. Errors: {Errors}",
+                        string.Join(", ", validationResult));
+
+            return BadRequest(validationResult.Errors);
         }
 
         try

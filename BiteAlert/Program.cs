@@ -1,6 +1,7 @@
 using BiteAlert.Exceptions;
 using BiteAlert.Infrastructure.Data;
 using BiteAlert.StartupConfigs;
+using FluentValidation;
 using Microsoft.EntityFrameworkCore;
 using Serilog;
 
@@ -19,6 +20,9 @@ builder.Services.AddEndpointsApiExplorer();
 // Add global exception handler
 builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
 builder.Services.AddProblemDetails();
+
+// Add FluentValidator
+builder.Services.AddValidatorsFromAssemblyContaining<Program>();
 
 // Configure database connection string
 builder.Services.AddDbContext<ApplicationDbContext>(
