@@ -12,10 +12,10 @@ namespace BiteAlert.StartupConfigs;
 
 public static class JwtAuthentication
 {
-    public static void AddJwtAuthentication(this WebApplicationBuilder builder)
+    public static void AddJwtAuthentication(this IServiceCollection services, IConfiguration configuration)
     {
         // Configure aspnet identity
-        builder.Services.AddIdentity<ApplicationUser, IdentityRole<Guid>>(options =>
+        services.AddIdentity<ApplicationUser, IdentityRole<Guid>>(options =>
         {
             options.User.RequireUniqueEmail = true;
             options.Password.RequiredLength = 8;
@@ -25,9 +25,9 @@ public static class JwtAuthentication
             .AddDefaultTokenProviders();
 
         // Retrieve JWT configuration values
-        var jwtIssuer = builder.Configuration.GetValue<string>("Jwt:Issuer");
-        var jwtAudience = builder.Configuration.GetValue<string>("Jwt:Audience");
-        var jwtKey = builder.Configuration.GetValue<string>("Jwt:Key");
+        var jwtIssuer = configuration.GetValue<string>("Jwt:Issuer");
+        var jwtAudience = configuration.GetValue<string>("Jwt:Audience");
+        var jwtKey = configuration.GetValue<string>("Jwt:Key");
 
         // Validate JWT configuration values
         if (string.IsNullOrWhiteSpace(jwtIssuer) ||
@@ -38,7 +38,7 @@ public static class JwtAuthentication
         }
 
         // Configure JWT authentication
-        builder.Services.AddAuthentication(options =>
+        services.AddAuthentication(options =>
         {
             options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
             options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -59,7 +59,7 @@ public static class JwtAuthentication
             });
 
         // Require users of the app to be authenticated
-        builder.Services.AddAuthorizationBuilder()
+        services.AddAuthorizationBuilder()
             .SetFallbackPolicy(new AuthorizationPolicyBuilder()
                 .RequireAuthenticatedUser()
                 .Build());

@@ -20,9 +20,10 @@ builder.Services.AddDbContext<ApplicationDbContext>(
     options => options.UseSqlServer(
         builder.Configuration.GetConnectionString("DefaultConnection")));
 
-builder.AddSwaggerConfigurations();
-builder.AddJwtAuthentication();
-builder.AddCustomServices();
+// Configure custom services and configurations
+builder.Services.AddSwaggerConfigurations(builder.Configuration);
+builder.Services.AddJwtAuthentication(builder.Configuration);
+builder.Services.AddCustomServices();
 
 var app = builder.Build();
 

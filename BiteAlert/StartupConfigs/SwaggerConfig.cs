@@ -5,16 +5,16 @@ namespace BiteAlert.StartupConfigs;
 
 public static class SwaggerConfig
 {
-    public static void AddSwaggerConfigurations(this WebApplicationBuilder builder)
+    public static void AddSwaggerConfigurations(this IServiceCollection services, IConfiguration configuration)
     {
         // Get swagger config values from appsettings.json
-        var title = builder.Configuration.GetSection("SwaggerDoc:Title").Value;
-        var description = builder.Configuration.GetSection("SwaggerDoc:Description").Value;
-        var name = builder.Configuration.GetSection("SwaggerDoc:Contact:Name").Value;
-        var email = builder.Configuration.GetSection("SwaggerDoc:Contact:Email").Value;
-        var url = builder.Configuration.GetSection("SwaggerDoc:Contact:Url").Value;
+        var title = configuration.GetSection("SwaggerDoc:Title").Value;
+        var description = configuration.GetSection("SwaggerDoc:Description").Value;
+        var name = configuration.GetSection("SwaggerDoc:Contact:Name").Value;
+        var email = configuration.GetSection("SwaggerDoc:Contact:Email").Value;
+        var url = configuration.GetSection("SwaggerDoc:Contact:Url").Value;
 
-        builder.Services.AddSwaggerGen(options =>
+        services.AddSwaggerGen(options =>
         {
             // Add the API info and description
             options.SwaggerDoc("v1", new OpenApiInfo()
