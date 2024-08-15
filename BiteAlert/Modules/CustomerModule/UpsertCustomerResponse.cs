@@ -1,9 +1,9 @@
 ﻿// Ignore Spelling: Upsert
 
+using BiteAlert.Modules.Shared;
+
 namespace BiteAlert.Modules.CustomerModule;
 
-public class UpsertCustomerResponse
+public class UpsertCustomerResponse : BaseResponse
 {
-    public bool Succeeded { get; set; }
-    public string Message { get; set; } = string.Empty;
 }
