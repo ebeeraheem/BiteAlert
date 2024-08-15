@@ -1,12 +1,13 @@
-﻿using BiteAlert.Modules.Shared;
+﻿using Asp.Versioning;
+using BiteAlert.Modules.Shared;
 using BiteAlert.Modules.Utilities;
 using FluentValidation;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
-namespace BiteAlert.Modules.ProductModule;
-[Route("api/[controller]")]
+namespace BiteAlert.Modules.ProductModule.V1;
 [ApiController]
+[ApiVersion("1.0")]
+[Route("api/v{version:apiVersion}/products")]
 public class ProductsController(IProductService productService,
                                 UserContextService userContext,
                                 ILogger<ProductsController> logger,
@@ -69,10 +70,10 @@ public class ProductsController(IProductService productService,
                 Message = "Failed to create product.",
                 FluentValidationErrors = validationResult.Errors
                     .Select(error => new FluentValidationError()
-                {
+                    {
                         PropertyName = error.PropertyName,
                         ErrorMessage = error.ErrorMessage
-                })
+                    })
             };
 
             logger.LogWarning("Failed to create product due to validation errors. Errors: {Errors}",
@@ -90,8 +91,8 @@ public class ProductsController(IProductService productService,
             if (result.Succeeded)
             {
                 logger.LogInformation(
-                    "Product created successfully by vendor {VendorId}. Product ID: {ProductId}", 
-                            vendorId, 
+                    "Product created successfully by vendor {VendorId}. Product ID: {ProductId}",
+                            vendorId,
                             result.Product!.Id);
 
                 return CreatedAtAction(
@@ -156,8 +157,8 @@ public class ProductsController(IProductService productService,
         try
         {
             logger.LogInformation(
-                "Attempting to update product {ProductId} by vendor {VendorId}", 
-                        productId, 
+                "Attempting to update product {ProductId} by vendor {VendorId}",
+                        productId,
                         vendorId);
 
             var result = await productService.UpdateAsync(vendorId, productId, request);
@@ -180,7 +181,7 @@ public class ProductsController(IProductService productService,
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, 
+            logger.LogError(ex,
                 "An unexpected error occurred while vendor {VendorId} was updating product {ProductId}",
                         vendorId,
                         productId);
