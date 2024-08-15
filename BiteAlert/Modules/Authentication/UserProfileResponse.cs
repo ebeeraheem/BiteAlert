@@ -8,5 +8,8 @@ public class UserProfileResponse : BaseResponse
 {
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-    public IEnumerable<IdentityError>? Errors { get; set; }
+    public IEnumerable<IdentityError>? IdentityErrors { get; set; }
+
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public IEnumerable<FluentValidationError>? FluentValidationErrors { get; set; }
 }

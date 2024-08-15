@@ -13,7 +13,8 @@ public class AuthController(IUserService userService,
                             UserContextService userContext,
                             ILogger<AuthController> logger,
                             IValidator<RegisterUserRequest> registerValidator,
-                            IValidator<LoginUserRequest> loginValidator) : ControllerBase
+                            IValidator<LoginUserRequest> loginValidator,
+                            IValidator<UserProfileRequest> profileValidator) : ControllerBase
 {
     [AllowAnonymous]
     [HttpPost("register")]
@@ -135,6 +136,28 @@ public class AuthController(IUserService userService,
             return Unauthorized();
         }
 
+        var validationResult = profileValidator.Validate(request);
+
+        if (validationResult.IsValid is false)
+        {
+            var failedResponse = new UserProfileResponse()
+            {
+                Succeeded = false,
+                Message = "Failed to update profile.",
+                FluentValidationErrors = validationResult.Errors
+                    .Select(error => new FluentValidationError()
+                    {
+                        PropertyName = error.PropertyName,
+                        ErrorMessage = error.ErrorMessage
+                    })
+            };
+
+            logger.LogWarning("User profile request failed validation. Errors: {Errors}",
+                        validationResult);
+
+            return BadRequest(failedResponse);
+        }
+
         try
         {
             logger.LogInformation("Attempting to update profile for user with Id: {Id}", userId);
@@ -198,7 +221,7 @@ public class AuthController(IUserService userService,
 
         logger.LogWarning("Failed to update password for user with Id {Id}. Errors: {@Errors}", 
                     userId,
-                    result.Errors);
+                    result.IdentityErrors);
 
         return BadRequest(result);
     }

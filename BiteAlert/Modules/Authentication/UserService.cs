@@ -159,7 +159,7 @@ public class UserService(ApplicationDbContext context,
                 {
                     Succeeded = false,
                     Message = "Failed to update user profile.",
-                    Errors = result.Errors
+                    IdentityErrors = result.Errors
                 };
             }
 
@@ -210,7 +210,7 @@ public class UserService(ApplicationDbContext context,
             {
                 Succeeded = false,
                 Message = "Failed to update password.",
-                Errors = result.Errors
+                IdentityErrors = result.Errors
             };
         }
 
