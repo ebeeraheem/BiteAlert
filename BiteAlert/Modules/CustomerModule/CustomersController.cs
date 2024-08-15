@@ -9,6 +9,10 @@ public class CustomersController(ICustomerService customerService,
                                  ILogger<CustomersController> logger): ControllerBase
 {
     [HttpPost("register")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
     public async Task<IActionResult> RegisterCustomer()
     {
         var userId = userContext.GetUserId();
@@ -39,6 +43,10 @@ public class CustomersController(ICustomerService customerService,
     }
 
     [HttpGet("by-id/{customerId}")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetCustomerById(string customerId)
     {
         var customer = await customerService.GetCustomerById(customerId);
