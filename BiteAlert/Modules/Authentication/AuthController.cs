@@ -11,19 +11,25 @@ namespace BiteAlert.Modules.Authentication;
 public class AuthController(IUserService userService,
                             UserContextService userContext,
                             ILogger<AuthController> logger,
-                            IValidator<LoginUserRequest> validator) : ControllerBase
+                            IValidator<RegisterUserRequest> registerValidator,
+                            IValidator<LoginUserRequest> loginValidator) : ControllerBase
 {
     [AllowAnonymous]
     [HttpPost("register")]
     public async Task<IActionResult> RegisterUser([FromBody] RegisterUserRequest request)
     {
-        if (!ModelState.IsValid)
-        {
-            logger.LogWarning("Register user ModelState is invalid: {ModelStateErrors}",
-                        ModelState.Values.SelectMany(v => v.Errors)
-                        .Select(e => e.ErrorMessage));
+        var validationResult = registerValidator.Validate(request);
 
-            return BadRequest(ModelState);
+        if (validationResult.IsValid is false)
+        {
+            logger.LogWarning("Register user request failed validation. Errors: {Errors}",
+                        validationResult);
+
+            return BadRequest(new { 
+                Succeeded = false, 
+                Message = "User registration failed.", 
+                // Errors = Select only the Property name and error message fields
+            });
         }
 
         try
@@ -57,12 +63,12 @@ public class AuthController(IUserService userService,
     [HttpPost("login")]
     public async Task<IActionResult> LoginUser([FromBody] LoginUserRequest request)
     {
-        var validationResult = validator.Validate(request);
+        var validationResult = loginValidator.Validate(request);
 
         if (validationResult.IsValid is false)
         {
             logger.LogWarning("Login user request failed validation. Errors: {Errors}",
-                        string.Join(", ", validationResult));
+                        validationResult);
 
             return BadRequest(validationResult.Errors);
         }
