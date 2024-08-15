@@ -40,7 +40,7 @@ public class UserService(ApplicationDbContext context,
                 {
                     Succeeded = false,
                     Message = "User registration failed.",
-                    Errors = result.Errors
+                    IdentityErrors = result.Errors
                 };
 
                 await transaction.RollbackAsync();

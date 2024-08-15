@@ -1,5 +1,6 @@
 ﻿// Ignore Spelling: Auth
 
+using BiteAlert.Modules.Shared;
 using BiteAlert.Modules.Utilities;
 using FluentValidation;
 using Microsoft.AspNetCore.Authorization;
@@ -22,21 +23,29 @@ public class AuthController(IUserService userService,
 
         if (validationResult.IsValid is false)
         {
+            var failedResponse = new RegisterUserResponse
+            {
+                Succeeded = false,
+                Message = "User registration failed.",
+                FluentValidationErrors = validationResult.Errors
+                    .Select(error => new FluentValidationError
+                    {
+                        PropertyName = error.PropertyName,
+                        ErrorMessage = error.ErrorMessage
+                    })
+            };
+
             logger.LogWarning("Register user request failed validation. Errors: {Errors}",
                         validationResult);
 
-            return BadRequest(new { 
-                Succeeded = false, 
-                Message = "User registration failed.", 
-                // Errors = Select only the Property name and error message fields
-            });
+            return BadRequest(failedResponse);
         }
 
         try
         {
             var result = await userService.RegisterUserAsync(request);
 
-            if (result.Errors is null)
+            if (result.IdentityErrors is null)
             {
                 logger.LogInformation("User successfully registered with email: {Email}", request.Email);
 
@@ -45,7 +54,7 @@ public class AuthController(IUserService userService,
 
             logger.LogWarning("User registration failed with email: {Email}. Errors: {@Errors}", 
                         request.Email, 
-                        result.Errors);
+                        result.IdentityErrors);
 
             return BadRequest(result);
         }
@@ -67,10 +76,22 @@ public class AuthController(IUserService userService,
 
         if (validationResult.IsValid is false)
         {
+            var failedResponse = new LoginUserResponse
+            {
+                Succeeded = false,
+                Message = "User login failed.",
+                FluentValidationErrors = validationResult.Errors
+                    .Select(error => new FluentValidationError
+                    {
+                        PropertyName = error.PropertyName,
+                        ErrorMessage = error.ErrorMessage
+                    })
+            };
+
             logger.LogWarning("Login user request failed validation. Errors: {Errors}",
                         validationResult);
 
-            return BadRequest(validationResult.Errors);
+            return BadRequest(failedResponse);
         }
 
         try
