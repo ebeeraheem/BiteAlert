@@ -1,4 +1,5 @@
 ﻿using BiteAlert.Modules.Utilities;
+using FluentValidation;
 using Microsoft.AspNetCore.Mvc;
 
 namespace BiteAlert.Modules.VendorModule;
@@ -6,7 +7,8 @@ namespace BiteAlert.Modules.VendorModule;
 [ApiController]
 public class VendorsController(IVendorService vendorService,
                                UserContextService userContext,
-                               ILogger<VendorsController> logger) : ControllerBase
+                               ILogger<VendorsController> logger,
+                               IValidator<UpsertVendorRequest> validator) : ControllerBase
 {
     [HttpPost("register")]
     public async Task<IActionResult> RegisterVendor([FromBody] UpsertVendorRequest request)
@@ -20,11 +22,12 @@ public class VendorsController(IVendorService vendorService,
             return Unauthorized();
         }
 
-        if (!ModelState.IsValid)
+        var validationResult = validator.Validate(request);
+
+        if (validationResult.IsValid is false)
         {
-            logger.LogWarning("Register vendor ModelState is invalid: {ModelStateErrors}",
-                        ModelState.Values.SelectMany(v => v.Errors)
-                        .Select(e => e.ErrorMessage));
+            logger.LogWarning("Register vendor request failed validation. Errors: {Errors}",
+                        validationResult);
 
             return BadRequest(ModelState);
         }
@@ -70,7 +73,7 @@ public class VendorsController(IVendorService vendorService,
         {
             logger.LogWarning("Vendor with Id {Id} not found.", vendorId);
 
-            return NotFound("vendor not found");
+            return NotFound("Vendor not found");
         }
 
         return Ok(vendor);
@@ -87,7 +90,7 @@ public class VendorsController(IVendorService vendorService,
         {
             logger.LogWarning("Vendor with username {Username} not found.", userName);
 
-            return NotFound("vendor not found");
+            return NotFound("Vendor not found");
         }
 
         return Ok(vendor);
@@ -105,11 +108,12 @@ public class VendorsController(IVendorService vendorService,
             return Unauthorized();
         }
 
-        if (!ModelState.IsValid)
+        var validationResult = validator.Validate(request);
+
+        if (validationResult.IsValid is false)
         {
-            logger.LogWarning("Update business info ModelState is invalid: {ModelStateErrors}",
-                        ModelState.Values.SelectMany(v => v.Errors)
-                        .Select(e => e.ErrorMessage));
+            logger.LogWarning("Update vendor request failed validation. Errors: {Errors}",
+                        validationResult);
 
             return BadRequest(ModelState);
         }
