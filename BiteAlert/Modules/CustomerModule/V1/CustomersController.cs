@@ -1,12 +1,14 @@
-﻿using BiteAlert.Modules.Utilities;
+﻿using Asp.Versioning;
+using BiteAlert.Modules.Utilities;
 using Microsoft.AspNetCore.Mvc;
 
-namespace BiteAlert.Modules.CustomerModule;
-[Route("api/[controller]")]
+namespace BiteAlert.Modules.CustomerModule.V1;
 [ApiController]
+[ApiVersion("1.0")]
+[Route("api/v{version:apiVersion}/customers")]
 public class CustomersController(ICustomerService customerService,
                                  UserContextService userContext,
-                                 ILogger<CustomersController> logger): ControllerBase
+                                 ILogger<CustomersController> logger) : ControllerBase
 {
     [HttpPost("register")]
     [ProducesResponseType(StatusCodes.Status200OK)]
