@@ -1,10 +1,12 @@
-﻿using BiteAlert.Modules.Utilities;
+﻿using Asp.Versioning;
+using BiteAlert.Modules.Utilities;
 using FluentValidation;
 using Microsoft.AspNetCore.Mvc;
 
-namespace BiteAlert.Modules.VendorModule;
-[Route("api/[controller]")]
+namespace BiteAlert.Modules.VendorModule.V1;
 [ApiController]
+[ApiVersion("1.0")]
+[Route("api/v{version:apiVersion}/vendors")]
 public class VendorsController(IVendorService vendorService,
                                UserContextService userContext,
                                ILogger<VendorsController> logger,
@@ -17,7 +19,7 @@ public class VendorsController(IVendorService vendorService,
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> RegisterVendor([FromBody] UpsertVendorRequest request)
-{
+    {
         var userId = userContext.GetUserId();
 
         if (userId is null)
@@ -62,7 +64,7 @@ public class VendorsController(IVendorService vendorService,
             logger.LogError(ex, "An unexpected error occurred during vendor registration. ID: {Id}",
                         userId);
 
-            return StatusCode(StatusCodes.Status500InternalServerError, 
+            return StatusCode(StatusCodes.Status500InternalServerError,
                 "An unexpected error occurred. Vendor registration failed.");
         }
     }
