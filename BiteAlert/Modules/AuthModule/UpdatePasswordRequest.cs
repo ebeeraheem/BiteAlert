@@ -1,6 +1,6 @@
 ﻿// Ignore Spelling: Auth
 
-namespace BiteAlert.Modules.Authentication;
+namespace BiteAlert.Modules.AuthModule;
 
 public class UpdatePasswordRequest
 {

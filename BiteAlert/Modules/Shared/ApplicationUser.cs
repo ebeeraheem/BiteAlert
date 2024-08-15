@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Identity;
 
-namespace BiteAlert.Modules.Authentication;
+namespace BiteAlert.Modules.Shared;
 
 public class ApplicationUser : IdentityUser<Guid>
 {

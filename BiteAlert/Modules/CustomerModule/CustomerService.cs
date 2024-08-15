@@ -1,5 +1,5 @@
 ﻿using BiteAlert.Infrastructure.Data;
-using BiteAlert.Modules.Authentication;
+using BiteAlert.Modules.Shared;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
@@ -23,12 +23,12 @@ public class CustomerService(UserManager<ApplicationUser> userManager,
 
         if (user is null)
         {
-            logger.LogWarning("User with Id {Id} not found", userId);
+            logger.LogWarning("User with Id {Id} not found.", userId);
 
             return new UpsertCustomerResponse()
             {
                 Succeeded = false,
-                Message = "user not found"
+                Message = "User not found."
             };
         }
 
@@ -41,7 +41,7 @@ public class CustomerService(UserManager<ApplicationUser> userManager,
             return new UpsertCustomerResponse()
             {
                 Succeeded = false,
-                Message = "invalid user id"
+                Message = "Invalid user id."
             };
         }
 

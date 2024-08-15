@@ -1,6 +1,6 @@
-﻿using BiteAlert.Modules.Authentication;
-using BiteAlert.Modules.CustomerModule;
+﻿using BiteAlert.Modules.CustomerModule;
 using BiteAlert.Modules.ProductModule;
+using BiteAlert.Modules.Shared;
 using BiteAlert.Modules.VendorModule;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;

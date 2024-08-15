@@ -1,6 +1,5 @@
 ﻿using BiteAlert.Infrastructure.Data;
-using BiteAlert.Modules.Authentication;
-using BiteAlert.Modules.CustomerModule;
+using BiteAlert.Modules.Shared;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
@@ -69,7 +68,7 @@ public class VendorService(UserManager<ApplicationUser> userManager,
                 return new UpsertVendorResponse()
                 {
                     Succeeded = false,
-                    Message = "user is already a vendor"
+                    Message = "User is already a vendor."
                 };
             }
 
@@ -140,7 +139,7 @@ public class VendorService(UserManager<ApplicationUser> userManager,
                 return new UpsertVendorResponse()
                 {
                     Succeeded = false,
-                    Message = "vendor not found"
+                    Message = "Vendor not found."
                 };
             }
 
@@ -173,7 +172,7 @@ public class VendorService(UserManager<ApplicationUser> userManager,
             var response = new UpsertVendorResponse()
             {
                 Succeeded = true,
-                Message = "vendor updated successfully"
+                Message = "Vendor business info updated successfully."
             };
 
             return response;

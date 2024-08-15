@@ -22,7 +22,7 @@ namespace BiteAlert.Infrastructure.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
-            modelBuilder.Entity("BiteAlert.Modules.Authentication.ApplicationUser", b =>
+            modelBuilder.Entity("BiteAlert.Modules.AuthModule.ApplicationUser", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -318,7 +318,7 @@ namespace BiteAlert.Infrastructure.Migrations
 
             modelBuilder.Entity("BiteAlert.Modules.CustomerModule.Customer", b =>
                 {
-                    b.HasOne("BiteAlert.Modules.Authentication.ApplicationUser", "User")
+                    b.HasOne("BiteAlert.Modules.AuthModule.ApplicationUser", "User")
                         .WithMany()
                         .HasForeignKey("Id")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -340,7 +340,7 @@ namespace BiteAlert.Infrastructure.Migrations
 
             modelBuilder.Entity("BiteAlert.Modules.VendorModule.Vendor", b =>
                 {
-                    b.HasOne("BiteAlert.Modules.Authentication.ApplicationUser", "User")
+                    b.HasOne("BiteAlert.Modules.AuthModule.ApplicationUser", "User")
                         .WithMany()
                         .HasForeignKey("Id")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -360,7 +360,7 @@ namespace BiteAlert.Infrastructure.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<System.Guid>", b =>
                 {
-                    b.HasOne("BiteAlert.Modules.Authentication.ApplicationUser", null)
+                    b.HasOne("BiteAlert.Modules.AuthModule.ApplicationUser", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -369,7 +369,7 @@ namespace BiteAlert.Infrastructure.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<System.Guid>", b =>
                 {
-                    b.HasOne("BiteAlert.Modules.Authentication.ApplicationUser", null)
+                    b.HasOne("BiteAlert.Modules.AuthModule.ApplicationUser", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -384,7 +384,7 @@ namespace BiteAlert.Infrastructure.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("BiteAlert.Modules.Authentication.ApplicationUser", null)
+                    b.HasOne("BiteAlert.Modules.AuthModule.ApplicationUser", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -393,7 +393,7 @@ namespace BiteAlert.Infrastructure.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<System.Guid>", b =>
                 {
-                    b.HasOne("BiteAlert.Modules.Authentication.ApplicationUser", null)
+                    b.HasOne("BiteAlert.Modules.AuthModule.ApplicationUser", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)

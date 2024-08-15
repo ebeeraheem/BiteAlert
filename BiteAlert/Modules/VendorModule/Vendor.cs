@@ -1,7 +1,7 @@
 ﻿// Ignore Spelling: Tagline
 
-using BiteAlert.Modules.Authentication;
 using BiteAlert.Modules.ProductModule;
+using BiteAlert.Modules.Shared;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json.Serialization;

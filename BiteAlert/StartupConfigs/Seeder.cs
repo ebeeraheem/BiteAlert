@@ -1,7 +1,7 @@
 ﻿// Ignore Spelling: Admin
 
 using BiteAlert.Infrastructure.Data;
-using BiteAlert.Modules.Authentication;
+using BiteAlert.Modules.Shared;
 using Microsoft.AspNetCore.Identity;
 using System.Globalization;
 

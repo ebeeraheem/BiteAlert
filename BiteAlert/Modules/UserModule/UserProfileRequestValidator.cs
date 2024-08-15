@@ -2,7 +2,7 @@
 
 using FluentValidation;
 
-namespace BiteAlert.Modules.Authentication;
+namespace BiteAlert.Modules.UserModule;
 
 public class UserProfileRequestValidator : AbstractValidator<UserProfileRequest>
 {

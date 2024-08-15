@@ -2,9 +2,9 @@
 using Microsoft.AspNetCore.Identity;
 using System.Text.Json.Serialization;
 
-namespace BiteAlert.Modules.Authentication;
+namespace BiteAlert.Modules.AuthModule;
 
-public class UserProfileResponse : BaseResponse
+public class RegisterUserResponse : BaseResponse
 {
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]

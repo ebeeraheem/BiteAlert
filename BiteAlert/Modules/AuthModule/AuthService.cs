@@ -1,20 +1,21 @@
-﻿using BiteAlert.Infrastructure.Data;
+﻿// Ignore Spelling: Auth
+
+using BiteAlert.Infrastructure.Data;
+using BiteAlert.Modules.Shared;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 
-namespace BiteAlert.Modules.Authentication;
+namespace BiteAlert.Modules.AuthModule;
 
-public class UserService(ApplicationDbContext context,
+public class AuthService(ApplicationDbContext context,
                          UserManager<ApplicationUser> userManager,
                          SignInManager<ApplicationUser> signInManager,
                          IConfiguration config,
-                         ILogger<UserService> logger) : IUserService
+                         ILogger<AuthService> logger) : IAuthService
 {
-
-    // Register a new application user
     public async Task<RegisterUserResponse> RegisterUserAsync(RegisterUserRequest request)
     {
         var transaction = await context.Database
@@ -66,7 +67,6 @@ public class UserService(ApplicationDbContext context,
         }
     }
 
-    // Login user
     public async Task<LoginUserResponse> LoginUserAsync(LoginUserRequest request)
     {
         var user = await userManager.FindByEmailAsync(request.Email);
@@ -116,74 +116,7 @@ public class UserService(ApplicationDbContext context,
         return response;
     }
 
-    // Update user profile info
-    public async Task<UserProfileResponse> UpdateProfileAsync(string userId, UserProfileRequest request)
-    {
-        var transaction = await context.Database
-            .BeginTransactionAsync();
-
-        try
-        {
-            var user = await userManager.FindByIdAsync(userId);
-
-            if (user is null)
-            {
-                logger.LogWarning("User with Id {Id} not found", userId);
-
-                return new UserProfileResponse()
-                {
-                    Succeeded = false,
-                    Message = "User not found"
-                };
-            }
-
-            logger.LogInformation("Updating profile information for user with email: {Email}.", user.Email);
-
-            if (request.FirstName is not null) user.FirstName = request.FirstName;
-            if (request.LastName is not null) user.LastName = request.LastName;
-            if (request.UserName is not null) user.UserName = request.UserName;
-            if (request.PhoneNumber is not null) user.PhoneNumber = request.PhoneNumber;
-            if (request.DateOfBirth is not null) user.DateOfBirth = request.DateOfBirth;
-            if (request.ProfilePictureUrl is not null) user.ProfilePictureUrl = request.ProfilePictureUrl;
-
-            var result = await userManager.UpdateAsync(user);
-
-            if (result.Succeeded is false)
-            {
-                logger.LogWarning(
-                    "Failed to update profile information for user with email: {Email}. Errors: {@Errors}",
-                            user.Email,
-                            result.Errors);
-
-                return new UserProfileResponse()
-                {
-                    Succeeded = false,
-                    Message = "Failed to update user profile.",
-                    IdentityErrors = result.Errors
-                };
-            }
-
-            await context.SaveChangesAsync();
-            await transaction.CommitAsync();
-
-            return new UserProfileResponse()
-            {
-                Succeeded = true,
-                Message = "User profile updated successfully."
-            };
-        }
-        catch (Exception ex)
-        {
-            logger.LogError(ex, 
-                "An error occurred while updating profile information for user with Id: {Id}", 
-                        userId);
-
-            await transaction.RollbackAsync();
-            throw;
-        }
-    }
-
-    public async Task<UserProfileResponse> UpdatePasswordAsync(string userId, UpdatePasswordRequest request)
+    public async Task<AuthResponse> UpdatePasswordAsync(string userId, UpdatePasswordRequest request)
     {
         var user = await userManager.FindByIdAsync(userId);
 
@@ -191,7 +124,7 @@ public class UserService(ApplicationDbContext context,
         {
             logger.LogWarning("User with Id {Id} not found", userId);
 
-            return new UserProfileResponse()
+            return new AuthResponse()
             {
                 Succeeded = false,
                 Message = "User not found"
@@ -206,7 +139,7 @@ public class UserService(ApplicationDbContext context,
 
         if (result.Succeeded is false)
         {
-            return new UserProfileResponse()
+            return new AuthResponse()
             {
                 Succeeded = false,
                 Message = "Failed to update password.",
@@ -214,32 +147,23 @@ public class UserService(ApplicationDbContext context,
             };
         }
 
-        return new UserProfileResponse()
+        return new AuthResponse()
         {
             Succeeded = true,
              Message = "Password updated successfully."
         };
     }
 
-    public Task<UserProfileResponse> ResetPasswordAsync()
+    public Task<AuthResponse> ResetPasswordAsync()
     {
         throw new NotImplementedException();
     }
 
-    public Task<UserProfileResponse> VerifyEmailAsync()
+    public Task<AuthResponse> VerifyEmailAsync()
     {
         throw new NotImplementedException();
     }
 
-    public Task<UserProfileResponse> UpdateEmailAsync()
-    {
-        throw new NotImplementedException();
-    }
-
-    public Task<UserProfileResponse> DeleteUserAccount()
-    {
-        throw new NotImplementedException();
-    }
     private string GenerateJwtToken(ApplicationUser user)
     {
         logger.LogInformation("Generating JWT token for user with email: {Email}", user.Email);

@@ -1,4 +1,4 @@
-﻿using BiteAlert.Modules.Authentication;
+﻿using BiteAlert.Modules.Shared;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json.Serialization;
 

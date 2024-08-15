@@ -1,4 +1,4 @@
-﻿using BiteAlert.Modules.Authentication;
+﻿using BiteAlert.Modules.AuthModule;
 using BiteAlert.Modules.CustomerModule;
 using BiteAlert.Modules.ProductModule;
 using BiteAlert.Modules.Utilities;
@@ -11,7 +11,7 @@ public static class CustomServices
     public static void AddCustomServices(this IServiceCollection services)
     {
         // Add custom services
-        services.AddScoped<IUserService, UserService>();
+        services.AddScoped<IAuthService, AuthService>();
         services.AddScoped<IVendorService, VendorService>();
         services.AddScoped<ICustomerService, CustomerService>();
         services.AddScoped<IProductService, ProductService>();

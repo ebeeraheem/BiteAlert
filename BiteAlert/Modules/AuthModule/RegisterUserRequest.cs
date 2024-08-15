@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace BiteAlert.Modules.Authentication;
+namespace BiteAlert.Modules.AuthModule;
 
 public class RegisterUserRequest
 {

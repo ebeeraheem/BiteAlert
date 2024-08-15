@@ -1,7 +1,7 @@
 ﻿// Ignore Spelling: Jwt
 
 using BiteAlert.Infrastructure.Data;
-using BiteAlert.Modules.Authentication;
+using BiteAlert.Modules.Shared;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
