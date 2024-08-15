@@ -18,6 +18,9 @@ public class AuthController(IUserService userService,
 {
     [AllowAnonymous]
     [HttpPost("register")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> RegisterUser([FromBody] RegisterUserRequest request)
     {
         var validationResult = registerValidator.Validate(request);
@@ -71,6 +74,9 @@ public class AuthController(IUserService userService,
 
     [AllowAnonymous]
     [HttpPost("login")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> LoginUser([FromBody] LoginUserRequest request)
     {
         var validationResult = loginValidator.Validate(request);
@@ -125,6 +131,11 @@ public class AuthController(IUserService userService,
     }
 
     [HttpPost("update/profile")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> UpdateProfile([FromBody] UserProfileRequest request)
     {
         var userId = userContext.GetUserId();
@@ -189,6 +200,10 @@ public class AuthController(IUserService userService,
     }
 
     [HttpPost("update/password")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
     public async Task<IActionResult> ChangePassword([FromBody] UpdatePasswordRequest request)
     {
         var userId = userContext.GetUserId();
