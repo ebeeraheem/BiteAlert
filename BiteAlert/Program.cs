@@ -1,3 +1,4 @@
+using Asp.Versioning;
 using BiteAlert.Exceptions;
 using BiteAlert.Infrastructure.Data;
 using BiteAlert.StartupConfigs;
@@ -13,6 +14,22 @@ builder.Host.UseSerilog((context, loggerConfiguration) =>
     loggerConfiguration.WriteTo.Console();
     loggerConfiguration.ReadFrom.Configuration(context.Configuration);
 });
+
+// Configure API version
+builder.Services.AddApiVersioning(options =>
+{
+    options.DefaultApiVersion = new ApiVersion(1, 0);
+    options.AssumeDefaultVersionWhenUnspecified = true;
+    options.ReportApiVersions = true;
+    options.ApiVersionReader = ApiVersionReader.Combine(
+        new UrlSegmentApiVersionReader(),
+        new HeaderApiVersionReader("X-Api-Version"));
+}).AddApiExplorer(options =>
+{
+    options.GroupNameFormat = "'v'V";
+    options.SubstituteApiVersionInUrl = true;
+});
+
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
