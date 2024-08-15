@@ -1,4 +1,6 @@
-﻿using BiteAlert.Modules.Utilities;
+﻿using BiteAlert.Modules.Shared;
+using BiteAlert.Modules.Utilities;
+using FluentValidation;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -7,7 +9,8 @@ namespace BiteAlert.Modules.ProductModule;
 [ApiController]
 public class ProductsController(IProductService productService,
                                 UserContextService userContext,
-                                ILogger<ProductsController> logger) : ControllerBase
+                                ILogger<ProductsController> logger,
+                                IValidator<UpsertProductRequest> productValidator) : ControllerBase
 {
     [AllowAnonymous]
     [HttpGet]
@@ -46,13 +49,26 @@ public class ProductsController(IProductService productService,
             return Unauthorized();
         }
 
-        if (!ModelState.IsValid)
-        {
-            logger.LogWarning("Create product ModelState is invalid: {ModelStateErrors}",
-                        ModelState.Values.SelectMany(v => v.Errors)
-                        .Select(e => e.ErrorMessage));
+        var validationResult = productValidator.Validate(request);
 
-            return BadRequest(ModelState);
+        if (validationResult.IsValid is false)
+        {
+            var failedResponse = new UpsertProductResponse()
+            {
+                Succeeded = false,
+                Message = "Failed to create product.",
+                FluentValidationErrors = validationResult.Errors
+                    .Select(error => new FluentValidationError()
+                {
+                        PropertyName = error.PropertyName,
+                        ErrorMessage = error.ErrorMessage
+                })
+            };
+
+            logger.LogWarning("Failed to create product due to validation errors. Errors: {Errors}",
+                        validationResult);
+
+            return BadRequest(failedResponse);
         }
 
         try
@@ -100,13 +116,26 @@ public class ProductsController(IProductService productService,
             return Unauthorized();
         }
 
-        if (!ModelState.IsValid)
-        {
-            logger.LogWarning("Update product ModelState is invalid: {ModelStateErrors}",
-                        ModelState.Values.SelectMany(v => v.Errors)
-                        .Select(e => e.ErrorMessage));
+        var validationResult = productValidator.Validate(request);
 
-            return BadRequest(ModelState);
+        if (validationResult.IsValid is false)
+        {
+            var failedResponse = new UpsertProductResponse()
+            {
+                Succeeded = false,
+                Message = "Failed to update product.",
+                FluentValidationErrors = validationResult.Errors
+                    .Select(error => new FluentValidationError()
+                    {
+                        PropertyName = error.PropertyName,
+                        ErrorMessage = error.ErrorMessage
+                    })
+            };
+
+            logger.LogWarning("Failed to update product due to validation errors. Errors: {Errors}",
+                        validationResult);
+
+            return BadRequest(failedResponse);
         }
 
         try
