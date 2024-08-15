@@ -11,6 +11,11 @@ public class VendorsController(IVendorService vendorService,
                                IValidator<UpsertVendorRequest> validator) : ControllerBase
 {
     [HttpPost("register")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> RegisterVendor([FromBody] UpsertVendorRequest request)
 {
         var userId = userContext.GetUserId();
@@ -63,6 +68,10 @@ public class VendorsController(IVendorService vendorService,
     }
 
     [HttpGet("by-id/{vendorId}")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetVendorById(string vendorId)
     {
         logger.LogInformation("Attempting to get vendor by Id {Id}", vendorId);
@@ -80,6 +89,10 @@ public class VendorsController(IVendorService vendorService,
     }
 
     [HttpGet("by-username/{userName}")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetVendorByUserName(string userName)
     {
         logger.LogInformation("Attempting to find vendor with username {Username}", userName);
@@ -97,6 +110,11 @@ public class VendorsController(IVendorService vendorService,
     }
 
     [HttpPut("update")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> UpdateBusinessInfo([FromBody] UpsertVendorRequest request)
     {
         var vendorId = userContext.GetUserId();
