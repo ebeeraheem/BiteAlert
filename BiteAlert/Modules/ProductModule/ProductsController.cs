@@ -12,8 +12,10 @@ public class ProductsController(IProductService productService,
                                 ILogger<ProductsController> logger,
                                 IValidator<UpsertProductRequest> productValidator) : ControllerBase
 {
-    [AllowAnonymous]
     [HttpGet]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
     public async Task<IActionResult> GetProducts()
     {
         var products = await productService.GetProductsAsync();
@@ -21,8 +23,11 @@ public class ProductsController(IProductService productService,
         return Ok(products);
     }
 
-    [AllowAnonymous]
     [HttpGet("{productId}")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
     public async Task<IActionResult> GetProduct(string productId)
     {
         var result = await productService.GetProductByIdAsync(productId);
@@ -38,6 +43,11 @@ public class ProductsController(IProductService productService,
     }
 
     [HttpPost]
+    [ProducesResponseType(StatusCodes.Status201Created)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> Create(UpsertProductRequest request)
     {
         var vendorId = userContext.GetUserId();
@@ -105,6 +115,11 @@ public class ProductsController(IProductService productService,
     }
 
     [HttpPut("{productId}")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> Update(string productId, [FromBody] UpsertProductRequest request)
     {
         var vendorId = userContext.GetUserId();
@@ -176,6 +191,11 @@ public class ProductsController(IProductService productService,
     }
 
     [HttpDelete("{productId}")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> Delete(string productId)
     {
         var vendorId = userContext.GetUserId();
