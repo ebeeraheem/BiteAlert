@@ -11,5 +11,5 @@ public class EmailRequest
     public Personalisation Personalisation { get; set; } = null!;
 
     [JsonPropertyName("template_id")]
-    public string TemplateId { get; set; } = "7dnvo4d0z8rg5r86";
+    public string TemplateId { get; set; } = string.Empty;
 }
