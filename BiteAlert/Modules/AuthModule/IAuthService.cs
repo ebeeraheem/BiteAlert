@@ -7,5 +7,5 @@ public interface IAuthService
     Task<LoginUserResponse> LoginUserAsync(LoginUserRequest request);
     Task<AuthResponse> UpdatePasswordAsync(string userId, UpdatePasswordRequest request);
     Task<AuthResponse> ResetPasswordAsync();
-    Task<AuthResponse> VerifyEmailAsync();
+    Task<AuthResponse> VerifyEmailAsync(VerifyEmailRequest request);
 }

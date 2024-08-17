@@ -89,12 +89,12 @@ public class AuthService(ApplicationDbContext context,
 
         if (user is null)
         {
-            logger.LogWarning("User with email {Email} not found", request.Email);
+            logger.LogWarning("User with email {Email} not found.", request.Email);
 
             return new LoginUserResponse()
             {
                 Succeeded = false,
-                Message = "User not found"
+                Message = "User not found."
             };
         }
 
@@ -112,15 +112,15 @@ public class AuthService(ApplicationDbContext context,
             return new LoginUserResponse()
             {
                 Succeeded = false,
-                Message = "Invalid credentials"
+                Message = "Invalid credentials."
             };
         }
 
-        logger.LogInformation("User successfully logged in with email: {Email}.", user.Email);
+        logger.LogInformation("User successfully logged in with email: {Email}", user.Email);
 
         string tokenString = GenerateJwtToken(user);
 
-        logger.LogInformation("Successfully generated JWT token for user with email: {Email}.", user.Email);
+        logger.LogInformation("Successfully generated JWT token for user with email: {Email}", user.Email);
 
         var response = new LoginUserResponse()
         {
@@ -143,7 +143,7 @@ public class AuthService(ApplicationDbContext context,
             return new AuthResponse()
             {
                 Succeeded = false,
-                Message = "User not found"
+                Message = "User not found."
             };
         }
 
@@ -175,9 +175,38 @@ public class AuthService(ApplicationDbContext context,
         throw new NotImplementedException();
     }
 
-    public Task<AuthResponse> VerifyEmailAsync()
+    public async Task<AuthResponse> VerifyEmailAsync(VerifyEmailRequest request)
     {
-        throw new NotImplementedException();
+        var user = await userManager.FindByEmailAsync(request.Email);
+
+        if (user is null)
+        {
+            logger.LogWarning("User not found. Email: {Email}", request.Email);
+
+            return new AuthResponse()
+            {
+                Succeeded = false,
+                Message = "User not found."
+            };
+        }
+
+        var result = await userManager.ConfirmEmailAsync(user, request.Token);
+
+        if (result.Succeeded is false)
+        {
+            return new AuthResponse
+            {
+                Succeeded = false,
+                Message = "Email confirmation failed.",
+                IdentityErrors = result.Errors
+            };
+        }
+
+        return new AuthResponse()
+        {
+            Succeeded = true,
+            Message = "Email confirmed successfully."
+        };
     }
 
     private string GenerateJwtToken(ApplicationUser user)
