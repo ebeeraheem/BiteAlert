@@ -13,7 +13,7 @@ public class UsersController(IUserService userService,
                             ILogger<UsersController> logger,
                             IValidator<UserProfileRequest> profileValidator) : ControllerBase
 {
-    [HttpPost("update/profile")]
+    [HttpPost("profile")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]

@@ -30,6 +30,19 @@ public class UserService(ApplicationDbContext context,
                 };
             }
 
+            var isEmailVerified = await userManager.IsEmailConfirmedAsync(user);
+
+            if (isEmailVerified is false)
+            {
+                logger.LogWarning("User email not verified. User ID: {Id}", userId);
+
+                return new UserProfileResponse()
+                {
+                    Succeeded = false,
+                    Message = "User email not verified."
+                };
+            }
+
             logger.LogInformation("Updating profile information for user with email: {Email}.", user.Email);
 
             if (request.FirstName is not null) user.FirstName = request.FirstName;
