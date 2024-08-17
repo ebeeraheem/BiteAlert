@@ -7,7 +7,7 @@ using FluentValidation;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
-namespace BiteAlert.Modules.AuthModule;
+namespace BiteAlert.Modules.AuthModule.V1;
 [ApiController]
 [ApiVersion("1.0")]
 [Route("api/v{version:apiVersion}/auth")]
@@ -57,18 +57,18 @@ public class AuthController(IAuthService userService,
                 return Ok(result);
             }
 
-            logger.LogWarning("User registration failed with email: {Email}. Errors: {@Errors}", 
-                        request.Email, 
+            logger.LogWarning("User registration failed with email: {Email}. Errors: {@Errors}",
+                        request.Email,
                         result.IdentityErrors);
 
             return BadRequest(result);
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, "An unexpected error occurred during user registration with email: {Email}", 
+            logger.LogError(ex, "An unexpected error occurred during user registration with email: {Email}",
                         request.Email);
 
-            return StatusCode(StatusCodes.Status500InternalServerError, 
+            return StatusCode(StatusCodes.Status500InternalServerError,
                 "An unexpected error occurred. User registration failed.");
         }
     }
@@ -126,7 +126,7 @@ public class AuthController(IAuthService userService,
             logger.LogError(ex, "An unexpected error occurred during user login with email: {Email}",
                         request.Email);
 
-            return StatusCode(StatusCodes.Status500InternalServerError, 
+            return StatusCode(StatusCodes.Status500InternalServerError,
                 "An unexpected error occurred. User login failed.");
         }
     }
@@ -166,7 +166,7 @@ public class AuthController(IAuthService userService,
             return Ok(result);
         }
 
-        logger.LogWarning("Failed to update password for user with Id {Id}. Errors: {@Errors}", 
+        logger.LogWarning("Failed to update password for user with Id {Id}. Errors: {@Errors}",
                     userId,
                     result.IdentityErrors);
 
