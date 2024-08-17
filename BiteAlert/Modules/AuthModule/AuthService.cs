@@ -175,13 +175,13 @@ public class AuthService(ApplicationDbContext context,
         throw new NotImplementedException();
     }
 
-    public async Task<AuthResponse> VerifyEmailAsync(VerifyEmailRequest request)
+    public async Task<AuthResponse> VerifyEmailAsync(string userId, string token)
     {
-        var user = await userManager.FindByEmailAsync(request.Email);
+        var user = await userManager.FindByIdAsync(userId);
 
         if (user is null)
         {
-            logger.LogWarning("User not found. Email: {Email}", request.Email);
+            logger.LogWarning("User not found. User ID: {Id}", userId);
 
             return new AuthResponse()
             {
@@ -190,7 +190,7 @@ public class AuthService(ApplicationDbContext context,
             };
         }
 
-        var result = await userManager.ConfirmEmailAsync(user, request.Token);
+        var result = await userManager.ConfirmEmailAsync(user, token);
 
         if (result.Succeeded is false)
         {

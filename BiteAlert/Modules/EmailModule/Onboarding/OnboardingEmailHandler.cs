@@ -2,6 +2,7 @@
 
 using BiteAlert.Modules.NotificationModule;
 using MediatR;
+using System.Web;
 
 namespace BiteAlert.Modules.EmailModule.Onboarding;
 
@@ -21,6 +22,9 @@ public class OnboardingEmailHandler(
 
     private readonly string _supportEmail = config.GetSection("OnboardingEmail:SupportEmail").Value ??
         throw new ArgumentException("Failed to get Onboarding Support Email from the configurations.");
+
+    private readonly string _baseUrl = config.GetSection("BiteAlert:BaseUrl").Value ??
+        throw new ArgumentException("Failed to get Bite Alert base url from the configurations.");
 
     private readonly HttpClient _httpClient = httpClientFactory.CreateClient("mailerSend");
 
@@ -64,12 +68,20 @@ public class OnboardingEmailHandler(
                 {
                     UserName = notification.UserName,
                     SupportEmail = _supportEmail,
-                    EmailConfirmationToken = notification.EmailConfirmationToken
+                    EmailConfirmationLink = GenerateEmailConfirmationLink(notification.UserId,
+                                                                          notification.EmailConfirmationToken),
                 }
             }],
             TemplateId = _templateId
         };
 
         return onboardingEmail;
+    }
+
+    private string GenerateEmailConfirmationLink(Guid userId, string token)
+    {
+        var encodedToken = HttpUtility.UrlEncode(token);
+
+        return $"{_baseUrl}/api/v1/auth/verify-email?userId={userId}&token={encodedToken}";
     }
 }

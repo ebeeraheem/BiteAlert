@@ -132,34 +132,34 @@ public class AuthController(IAuthService userService,
     }
 
     [AllowAnonymous]
-    [HttpPost("verify-email")]
+    [HttpGet("verify-email")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<IActionResult> VerifyEmail([FromBody] VerifyEmailRequest request)
+    public async Task<IActionResult> VerifyEmail(string userId, string token)
     {
         try
         {
-            logger.LogInformation("Attempting to verify email address. Email: {Email}",
-                        request.Email);
+            logger.LogInformation("Attempting to verify user email address. User ID: {Id}",
+                        userId);
 
-            var result = await userService.VerifyEmailAsync(request);
+            var result = await userService.VerifyEmailAsync(userId, token);
 
             if (result.Succeeded)
             {
-                logger.LogInformation("Email confirmed successfully. Email: {Email}",
-                            request.Email);
+                logger.LogInformation("Email confirmed successfully. User ID: {Id}",
+                        userId);
 
                 return Ok(result);
             }
 
-            logger.LogWarning("Email confirmation failed. Email: {Email}", request.Email);
+            logger.LogWarning("Email confirmation failed. User ID: {Id}", userId);
             return BadRequest(result);
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, "An unexpected error occurred during email confirmation. Email: {Email}",
-                        request.Email);
+            logger.LogError(ex, "An unexpected error occurred during email confirmation. User ID: {Id}",
+                        userId);
 
             return StatusCode(StatusCodes.Status500InternalServerError,
                 "An unexpected error occurred. Email confirmation failed.");
