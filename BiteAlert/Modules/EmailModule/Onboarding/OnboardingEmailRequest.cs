@@ -1,10 +1,10 @@
-﻿// Ignore Spelling: Personalisation
+﻿// Ignore Spelling: Personalisation Onboarding
 
 using System.Text.Json.Serialization;
 
 namespace BiteAlert.Modules.EmailModule.Onboarding;
 
-public class EmailRequest : IEmailRequestBase
+public class OnboardingEmailRequest : IEmailRequestBase
 {
     public From From { get; set; } = null!;
     public List<To> To { get; set; } = null!;
