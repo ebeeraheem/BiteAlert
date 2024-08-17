@@ -55,6 +55,10 @@ builder.Services.AddHttpClient("mailerSend", client =>
 // Add FluentValidator
 builder.Services.AddValidatorsFromAssemblyContaining<Program>();
 
+// Configure MediatR
+builder.Services.AddMediatR(config => 
+    config.RegisterServicesFromAssemblyContaining<Program>());
+
 // Configure database connection string
 builder.Services.AddDbContext<ApplicationDbContext>(
     options => options.UseSqlServer(

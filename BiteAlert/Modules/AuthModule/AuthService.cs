@@ -1,7 +1,9 @@
 ﻿// Ignore Spelling: Auth
 
 using BiteAlert.Infrastructure.Data;
+using BiteAlert.Modules.NotificationModule;
 using BiteAlert.Modules.Shared;
+using MediatR;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
@@ -13,6 +15,7 @@ namespace BiteAlert.Modules.AuthModule;
 public class AuthService(ApplicationDbContext context,
                          UserManager<ApplicationUser> userManager,
                          SignInManager<ApplicationUser> signInManager,
+                         IMediator mediator,
                          IConfiguration config,
                          ILogger<AuthService> logger) : IAuthService
 {
@@ -47,6 +50,19 @@ public class AuthService(ApplicationDbContext context,
                 await transaction.RollbackAsync();
                 return failedResponse;
             }
+
+            // Generate email verification token
+            var emailConfirmationToken = await userManager.GenerateEmailConfirmationTokenAsync(user);
+
+            // Publish user registered event
+            logger.LogInformation("Publishing user registered event.");
+            await mediator.Publish(new UserRegisteredEvent
+            {
+                UserId = user.Id,
+                UserName = user.UserName,
+                Email = user.Email,
+                EmailConfirmationToken = emailConfirmationToken
+            });
 
             var successResponse = new RegisterUserResponse()
             {

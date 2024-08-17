@@ -1,12 +1,14 @@
 ﻿// Ignore Spelling: Onboarding
 
 using BiteAlert.Modules.NotificationModule;
+using MediatR;
 
 namespace BiteAlert.Modules.EmailModule.Onboarding;
 
-public class OnboardingEmailHandler(MailerSendService mailerSendService,
-                                    IConfiguration config,
-                                    ILogger<OnboardingEmailHandler> logger) : IEventSubscriber<UserRegisteredEvent>
+public class OnboardingEmailHandler(
+    IHttpClientFactory httpClientFactory,
+    IConfiguration config,
+    ILogger<OnboardingEmailHandler> logger) : INotificationHandler<UserRegisteredEvent>
 {
     private readonly string _fromEmail = config.GetSection("MailerSend:From:Email").Value ??
         throw new ArgumentException("Failed to get MailerSend sender email from the configurations.");
@@ -20,37 +22,54 @@ public class OnboardingEmailHandler(MailerSendService mailerSendService,
     private readonly string _supportEmail = config.GetSection("OnboardingEmail:SupportEmail").Value ??
         throw new ArgumentException("Failed to get Onboarding Support Email from the configurations.");
 
-    public async void Handle(UserRegisteredEvent eventToHandle)
+    private readonly HttpClient _httpClient = httpClientFactory.CreateClient("mailerSend");
+
+    public async Task Handle(UserRegisteredEvent notification, CancellationToken cancellationToken)
+    {
+        var onboardingEmail = CreateOnboardingEmail(notification);
+
+        var request = new HttpRequestMessage
+        {
+            Method = HttpMethod.Post,
+            RequestUri = _httpClient.BaseAddress,
+            Content = JsonContent.Create(onboardingEmail)
+        };
+
+        logger.LogInformation("Attempting to send confirmation email to {Email}", notification.Email);
+
+        var response = await _httpClient.SendAsync(request, cancellationToken);
+
+        if (response.IsSuccessStatusCode)
+        {
+            logger.LogInformation("Confirmation email successfully sent to {Email}", notification.Email);
+        }
+        else
+        {
+            logger.LogWarning("Failed to send confirmation email to {Email}. Errors: {Errors}",
+                        notification.Email,
+                        response.Content.ReadAsStringAsync(cancellationToken).Result);
+        }
+    }
+
+    private OnboardingEmailRequest CreateOnboardingEmail(UserRegisteredEvent notification)
     {
         var onboardingEmail = new OnboardingEmailRequest
         {
             From = new From { Email = _fromEmail, Name = _fromName },
-            To = [new() { Email = eventToHandle.Email, Name = eventToHandle.UserName }],
-            Personalisation = new Personalisation()
+            To = [new() { Email = notification.Email, Name = notification.UserName }],
+            Personalization = [new Personalization()
             {
-                Email = eventToHandle.Email,
+                Email = notification.Email,
                 Data = new Data()
                 {
-                    UserName = eventToHandle.UserName,
-                    SupportEmail = _supportEmail
+                    UserName = notification.UserName,
+                    SupportEmail = _supportEmail,
+                    EmailConfirmationToken = notification.EmailConfirmationToken
                 }
-            },
+            }],
             TemplateId = _templateId
         };
 
-        logger.LogInformation("Attempting to send confirmation email to {Email}", eventToHandle.Email);
-
-        var response = await mailerSendService.SendEmailAsync(onboardingEmail);
-
-        if (response.IsSuccessStatusCode)
-        {
-            logger.LogInformation("Confirmation email successfully sent to {Email}", eventToHandle.Email);
-        }
-        else
-        {
-            logger.LogWarning("Failed to send confirmation email to {Email}. Error: {@Error}",
-                        eventToHandle.Email,
-                        response.Content);
-        }
+        return onboardingEmail;
     }
 }

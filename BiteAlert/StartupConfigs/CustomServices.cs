@@ -17,6 +17,5 @@ public static class CustomServices
         services.AddScoped<ICustomerService, CustomerService>();
         services.AddScoped<IProductService, ProductService>();
         services.AddScoped<UserContextService>();
-        services.AddScoped<MailerSendService>();
     }
 }
