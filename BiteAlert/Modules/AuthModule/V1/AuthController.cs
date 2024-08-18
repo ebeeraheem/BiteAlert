@@ -84,7 +84,7 @@ public class AuthController(IAuthService authService,
 
         if (validationResult.IsValid is false)
         {
-            var failedResponse = new LoginUserResponse
+            var failedResponse = new AuthResponse
             {
                 Succeeded = false,
                 Message = "User login failed.",

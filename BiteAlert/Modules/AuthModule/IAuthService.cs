@@ -4,7 +4,7 @@ namespace BiteAlert.Modules.AuthModule;
 public interface IAuthService
 {
     Task<AuthResponse> RegisterUserAsync(RegisterUserRequest request);
-    Task<LoginUserResponse> LoginUserAsync(LoginUserRequest request);
+    Task<AuthResponse> LoginUserAsync(LoginUserRequest request);
     Task<AuthResponse> UpdatePasswordAsync(string userId, UpdatePasswordRequest request);
     Task<AuthResponse> ResetPasswordAsync();
     Task<AuthResponse> VerifyEmailAsync(string userId, string token);

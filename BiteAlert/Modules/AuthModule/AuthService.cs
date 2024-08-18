@@ -88,7 +88,7 @@ public class AuthService(ApplicationDbContext context,
         }
     }
 
-    public async Task<LoginUserResponse> LoginUserAsync(LoginUserRequest request)
+    public async Task<AuthResponse> LoginUserAsync(LoginUserRequest request)
     {
         var user = await userManager.FindByEmailAsync(request.Email);
 
@@ -96,7 +96,7 @@ public class AuthService(ApplicationDbContext context,
         {
             logger.LogWarning("User with email {Email} not found.", request.Email);
 
-            return new LoginUserResponse()
+            return new AuthResponse()
             {
                 Succeeded = false,
                 Message = "User not found."
@@ -114,7 +114,7 @@ public class AuthService(ApplicationDbContext context,
         {
             logger.LogWarning("Invalid login credentials for email {Email}", user.Email);
 
-            return new LoginUserResponse()
+            return new AuthResponse()
             {
                 Succeeded = false,
                 Message = "Invalid credentials."
@@ -127,10 +127,10 @@ public class AuthService(ApplicationDbContext context,
 
         logger.LogInformation("Successfully generated JWT token for user with email: {Email}", user.Email);
 
-        var response = new LoginUserResponse()
+        var response = new AuthResponse()
         {
             Succeeded = true,
-            Message = "User logged in successfully",
+            Message = "User logged in successfully.",
             Token = tokenString
         };
 

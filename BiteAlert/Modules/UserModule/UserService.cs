@@ -10,6 +10,10 @@ public class UserService(ApplicationDbContext context,
                          ILogger<UserService> logger) : IUserService
 
 {
+    public async Task<UserProfileResponse> SelectRoleAsync(string roleName)
+    {
+
+    }
     public async Task<UserProfileResponse> UpdateProfileAsync(string userId, UserProfileRequest request)
     {
         var transaction = await context.Database
