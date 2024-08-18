@@ -28,7 +28,7 @@ public class AuthController(IAuthService authService,
 
         if (validationResult.IsValid is false)
         {
-            var failedResponse = new RegisterUserResponse
+            var failedResponse = new AuthResponse
             {
                 Succeeded = false,
                 Message = "User registration failed.",

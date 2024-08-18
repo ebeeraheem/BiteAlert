@@ -19,7 +19,7 @@ public class AuthService(ApplicationDbContext context,
                          IConfiguration config,
                          ILogger<AuthService> logger) : IAuthService
 {
-    public async Task<RegisterUserResponse> RegisterUserAsync(RegisterUserRequest request)
+    public async Task<AuthResponse> RegisterUserAsync(RegisterUserRequest request)
     {
         var transaction = await context.Database
             .BeginTransactionAsync();
@@ -40,7 +40,7 @@ public class AuthService(ApplicationDbContext context,
 
             if (result.Succeeded is false)
             {
-                var failedResponse = new RegisterUserResponse()
+                var failedResponse = new AuthResponse()
                 {
                     Succeeded = false,
                     Message = "User registration failed.",
@@ -64,10 +64,15 @@ public class AuthService(ApplicationDbContext context,
                 EmailConfirmationToken = emailConfirmationToken
             });
 
-            var successResponse = new RegisterUserResponse()
+            // Login and generate token
+            await signInManager.PasswordSignInAsync(user, request.Password, false, false);
+            string tokenString = GenerateJwtToken(user);
+
+            var successResponse = new AuthResponse()
             {
                 Succeeded = true,
-                Message = "User registered successfully."
+                Message = "User registered successfully.",
+                Token = tokenString
             };
 
             await transaction.CommitAsync();
