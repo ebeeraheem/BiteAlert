@@ -7,12 +7,60 @@ namespace BiteAlert.Modules.UserModule;
 
 public class UserService(ApplicationDbContext context,
                          UserManager<ApplicationUser> userManager,
+                         RoleManager<IdentityRole<Guid>> roleManager,
                          ILogger<UserService> logger) : IUserService
 
 {
-    public async Task<UserProfileResponse> SelectRoleAsync(string roleName)
+    public async Task<UserProfileResponse> SelectRoleAsync(string userId, string roleName)
     {
+        var user = await userManager.FindByIdAsync(userId);
 
+        if (user is null)
+        {
+            logger.LogWarning("User with Id {Id} not found.", userId);
+
+            return new UserProfileResponse()
+            {
+                Succeeded = false,
+                Message = "User not found."
+            };
+        }
+
+        var userRoles = await userManager.GetRolesAsync(user);
+
+        if (userRoles.Any() && userRoles.Contains("Admin") is false)
+        {
+            return new UserProfileResponse()
+            {
+                Succeeded = false,
+                Message = "Role selection is not allowed."
+            };
+        }
+
+        if (await roleManager.RoleExistsAsync(roleName) is false)
+        {
+            return new UserProfileResponse()
+            {
+                Succeeded = false,
+                Message = "Selected role does not exist."
+            };
+        }
+
+        var result = await userManager.AddToRoleAsync(user, roleName);
+        if (result.Succeeded is false)
+        {
+            return new UserProfileResponse()
+            {
+                Succeeded = false,
+                Message = "Failed to assign role."
+            };
+        }
+
+        return new UserProfileResponse()
+        {
+            Succeeded = true,
+            Message = "Role assigned successfully."
+        };
     }
     public async Task<UserProfileResponse> UpdateProfileAsync(string userId, UserProfileRequest request)
     {

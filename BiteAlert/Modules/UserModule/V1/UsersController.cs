@@ -13,7 +13,32 @@ public class UsersController(IUserService userService,
                             ILogger<UsersController> logger,
                             IValidator<UserProfileRequest> profileValidator) : ControllerBase
 {
-    [HttpPost("profile")]
+    [HttpPost("update/role")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    public async Task<IActionResult> SelectRole(string roleName)
+    {
+        var userId = userContext.GetUserId();
+        if (userId is null)
+        {
+            logger.LogWarning("Unauthorized role selection attempt.");
+            return Unauthorized();
+        }
+
+        var result = await userService.SelectRoleAsync(userId, roleName);
+        if (result.Succeeded)
+        {
+            logger.LogInformation("Role assigned successfully. User ID: {Id}", userId);
+            return Ok(result);
+        }
+
+        logger.LogWarning("Failed to assign role. User ID: {Id}", userId);
+        return BadRequest(result);
+    }
+
+    [HttpPut("update/profile")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
