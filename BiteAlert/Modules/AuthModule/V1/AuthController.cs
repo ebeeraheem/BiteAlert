@@ -131,6 +131,25 @@ public class AuthController(IAuthService authService,
         }
     }
 
+    [HttpPost("send-verification-email")]
+    public async Task<IActionResult> SendVerificationEmail()
+    {
+        var userId = userContext.GetUserId();
+        if (userId is null)
+        {
+            logger.LogWarning("Unauthorized attempt to send verification email.");
+            return Unauthorized();
+        }
+
+        var result = await authService.SendVerificationEmailAsync(userId);
+        if (result.Succeeded)
+        {
+            return Ok(result);
+        }
+
+        return BadRequest(result);
+    }
+
     [AllowAnonymous]
     [HttpGet("verify-email")]
     [ProducesResponseType(StatusCodes.Status200OK)]

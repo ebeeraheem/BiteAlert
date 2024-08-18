@@ -214,40 +214,46 @@ public class AuthService(ApplicationDbContext context,
         };
     }
 
-    //public async Task<AuthResponse> GenerateEmailConfirmationTokenAsync(string userId)
-    //{
-    //    var user = await userManager.FindByIdAsync(userId);
+    public async Task<AuthResponse> SendVerificationEmailAsync(string userId)
+    {
+        var user = await userManager.FindByIdAsync(userId);
 
-    //    if (user is null)
-    //    {
-    //        logger.LogWarning("User with Id {Id} not found", userId);
+        if (user is null)
+        {
+            logger.LogWarning("User with Id {Id} not found", userId);
 
-    //        return new AuthResponse()
-    //        {
-    //            Succeeded = false,
-    //            Message = "User not found."
-    //        };
-    //    }
+            return new AuthResponse()
+            {
+                Succeeded = false,
+                Message = "User not found."
+            };
+        }
 
-    //    // Generate email verification token
-    //    var emailConfirmationToken = await userManager.GenerateEmailConfirmationTokenAsync(user);
+        if (await userManager.IsEmailConfirmedAsync(user))
+        {
+            return new AuthResponse()
+            {
+                Succeeded = false,
+                Message = "Email is already confirmed."
+            };
+        }
 
-    //    // Publish user registered event
-    //    logger.LogInformation("Publishing user registered event.");
-    //    await mediator.Publish(new UserRegisteredEvent
-    //    {
-    //        UserId = user.Id,
-    //        UserName = user.UserName!,
-    //        Email = user.Email!,
-    //        EmailConfirmationToken = emailConfirmationToken
-    //    });
+        var emailConfirmationToken = await userManager.GenerateEmailConfirmationTokenAsync(user);
 
-    //    return new AuthResponse()
-    //    {
-    //        Succeeded = true,
-    //        Message = "Email confirmation token sent successfully."
-    //    };
-    //}
+        await mediator.Publish(new UserRegisteredEvent
+        {
+            UserId = user.Id,
+            UserName = user.UserName!,
+            Email = user.Email!,
+            EmailConfirmationToken = emailConfirmationToken
+        });
+
+        return new AuthResponse()
+        {
+            Succeeded = true,
+            Message = "Confirmation email sent successfully."
+        };
+    }
 
     private string GenerateJwtToken(ApplicationUser user)
     {
