@@ -21,35 +21,30 @@ public class VendorsController(IVendorService vendorService,
     public async Task<IActionResult> RegisterVendor([FromBody] UpsertVendorRequest request)
     {
         var userId = userContext.GetUserId();
-
         if (userId is null)
         {
             logger.LogWarning("Unauthorized vendor registration attempt.");
-
             return Unauthorized();
         }
 
         var validationResult = validator.Validate(request);
-
         if (validationResult.IsValid is false)
         {
             logger.LogWarning("Register vendor request failed validation. Errors: {Errors}",
                         validationResult);
 
-            return BadRequest(ModelState);
+            return BadRequest(validationResult);
         }
 
         try
         {
             logger.LogInformation("Attempting to register vendor with Id {Id}", userId);
-
             var result = await vendorService
                         .RegisterVendorAsync(userId, request);
 
             if (result.Succeeded)
             {
                 logger.LogInformation("User {Id} successfully registered as a vendor.", userId);
-
                 return Ok(result);
             }
 

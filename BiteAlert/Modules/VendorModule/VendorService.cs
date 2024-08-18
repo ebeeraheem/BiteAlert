@@ -9,7 +9,6 @@ public class VendorService(UserManager<ApplicationUser> userManager,
                            ApplicationDbContext context,
                            ILogger<VendorService> logger) : IVendorService
 {
-    // Register a vendor
     public async Task<UpsertVendorResponse> RegisterVendorAsync(string userId, UpsertVendorRequest request)
     {
         var transaction = await context.Database
@@ -17,58 +16,37 @@ public class VendorService(UserManager<ApplicationUser> userManager,
 
         try
         {
-            // Find the user with the specified id
             var user = await userManager.FindByIdAsync(userId);
-
             if (user is null)
             {
-                logger.LogWarning("User with Id {Id} not found", userId);
-
+                logger.LogWarning("User with Id {Id} not found.", userId);
                 return new UpsertVendorResponse()
                 {
                     Succeeded = false,
-                    Message = "user not found"
+                    Message = "User not found."
                 };
             }
 
-            var isValidGuid = Guid.TryParse(userId, out Guid userGuid);
-
-            if (!isValidGuid)
+            var isVendor = await userManager.IsInRoleAsync(user, "Vendor");
+            if (isVendor is false)
             {
-                logger.LogWarning("Invalid user Id: {Id}", userId);
-
+                logger.LogWarning("User is not a vendor. User ID: {Id}", userId);
                 return new UpsertVendorResponse()
                 {
                     Succeeded = false,
-                    Message = "invalid user id"
+                    Message = "User is not a vendor."
                 };
             }
 
-            // Check if the user is a customer
-            var userIsCustomer = await context.Customers.FindAsync(userGuid);
-
-            if (userIsCustomer is not null)
+            // Check whether email is verified
+            var isVerified = user.EmailConfirmed;
+            if (isVerified is false)
             {
-                logger.LogWarning("User {Id} is already registered as a customer.", userGuid);
-
+                logger.LogWarning("Vendor email is not verified. Email: {Email}", user.Email);
                 return new UpsertVendorResponse()
                 {
                     Succeeded = false,
-                    Message = "You are currently registered as a customer."
-                };
-            }
-
-            // Check if user is already a vendor
-            var userIsVendor = await context.Vendors.FindAsync(userGuid);
-
-            if (userIsVendor is not null)
-            {
-                logger.LogWarning("User {Id} is already registered as a vendor.", userGuid);
-
-                return new UpsertVendorResponse()
-                {
-                    Succeeded = false,
-                    Message = "User is already a vendor."
+                    Message = "Vendor email is not verified."
                 };
             }
 
@@ -88,7 +66,6 @@ public class VendorService(UserManager<ApplicationUser> userManager,
             // Save the vendor
             await context.Vendors.AddAsync(vendor);
             await context.SaveChangesAsync();
-
             await transaction.CommitAsync();
 
             var response = new UpsertVendorResponse()
