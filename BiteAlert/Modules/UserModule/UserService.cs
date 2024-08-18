@@ -56,6 +56,7 @@ public class UserService(ApplicationDbContext context,
             };
         }
 
+        user.LastUpdatedAt = DateTime.UtcNow;
         return new UserProfileResponse()
         {
             Succeeded = true,
@@ -82,27 +83,25 @@ public class UserService(ApplicationDbContext context,
                 };
             }
 
-            var isEmailVerified = await userManager.IsEmailConfirmedAsync(user);
-
-            if (isEmailVerified is false)
-            {
-                logger.LogWarning("User email not verified. User ID: {Id}", userId);
-
-                return new UserProfileResponse()
-                {
-                    Succeeded = false,
-                    Message = "User email not verified."
-                };
-            }
-
             logger.LogInformation("Updating profile information for user with email: {Email}.", user.Email);
 
-            if (request.FirstName is not null) user.FirstName = request.FirstName;
-            if (request.LastName is not null) user.LastName = request.LastName;
-            if (request.UserName is not null) user.UserName = request.UserName;
-            if (request.PhoneNumber is not null) user.PhoneNumber = request.PhoneNumber;
-            if (request.DateOfBirth is not null) user.DateOfBirth = request.DateOfBirth;
-            if (request.ProfilePictureUrl is not null) user.ProfilePictureUrl = request.ProfilePictureUrl;
+            if (string.IsNullOrWhiteSpace(request.FirstName) is false)
+                user.FirstName = request.FirstName;
+
+            if (string.IsNullOrWhiteSpace(request.LastName) is false)
+                user.LastName = request.LastName;
+
+            if (string.IsNullOrWhiteSpace(request.UserName) is false)
+                user.UserName = request.UserName;
+
+            if (string.IsNullOrWhiteSpace(request.PhoneNumber) is false)
+                user.PhoneNumber = request.PhoneNumber;
+
+            if (request.DateOfBirth is not null)
+                user.DateOfBirth = request.DateOfBirth;
+
+            if (string.IsNullOrWhiteSpace(request.ProfilePictureUrl) is false)
+                user.ProfilePictureUrl = request.ProfilePictureUrl;
 
             var result = await userManager.UpdateAsync(user);
 
@@ -113,6 +112,7 @@ public class UserService(ApplicationDbContext context,
                             user.Email,
                             result.Errors);
 
+                await transaction.RollbackAsync();
                 return new UserProfileResponse()
                 {
                     Succeeded = false,
@@ -120,6 +120,8 @@ public class UserService(ApplicationDbContext context,
                     IdentityErrors = result.Errors
                 };
             }
+
+            user.LastUpdatedAt = DateTime.UtcNow;
 
             await context.SaveChangesAsync();
             await transaction.CommitAsync();

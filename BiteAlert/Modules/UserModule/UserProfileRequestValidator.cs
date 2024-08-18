@@ -34,9 +34,9 @@ public class UserProfileRequestValidator : AbstractValidator<UserProfileRequest>
             .WithMessage("Date of birth cannot be in the future.")
             .When(request => request.DateOfBirth.HasValue);
 
-        RuleFor(request => request.ProfilePictureUrl)
-            .Must(url => Uri.IsWellFormedUriString(url, UriKind.Absolute))
-            .WithMessage("Profile picture URL must be a valid URL.")
-            .When(request => !string.IsNullOrEmpty(request.ProfilePictureUrl));
+        //RuleFor(request => request.ProfilePictureUrl)
+        //    .Must(url => Uri.IsWellFormedUriString(url, UriKind.Absolute))
+        //    .WithMessage("Profile picture URL must be a valid URL.")
+        //    .When(request => !string.IsNullOrEmpty(request.ProfilePictureUrl));
     }
 }
