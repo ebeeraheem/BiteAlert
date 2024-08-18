@@ -11,7 +11,7 @@ namespace BiteAlert.Modules.AuthModule.V1;
 [ApiController]
 [ApiVersion("1.0")]
 [Route("api/v{version:apiVersion}/auth")]
-public class AuthController(IAuthService userService,
+public class AuthController(IAuthService authService,
                             UserContextService userContext,
                             ILogger<AuthController> logger,
                             IValidator<RegisterUserRequest> registerValidator,
@@ -48,7 +48,7 @@ public class AuthController(IAuthService userService,
 
         try
         {
-            var result = await userService.RegisterUserAsync(request);
+            var result = await authService.RegisterUserAsync(request);
 
             if (result.IdentityErrors is null)
             {
@@ -106,7 +106,7 @@ public class AuthController(IAuthService userService,
         {
             logger.LogInformation("Attempting login for user with email: {Email}", request.Email);
 
-            var result = await userService.LoginUserAsync(request);
+            var result = await authService.LoginUserAsync(request);
 
             if (result.Token is null)
             {
@@ -143,7 +143,7 @@ public class AuthController(IAuthService userService,
             logger.LogInformation("Attempting to verify user email address. User ID: {Id}",
                         userId);
 
-            var result = await userService.VerifyEmailAsync(userId, token);
+            var result = await authService.VerifyEmailAsync(userId, token);
 
             if (result.Succeeded)
             {
@@ -192,7 +192,7 @@ public class AuthController(IAuthService userService,
             return BadRequest("New password cannot be the same as old password.");
         }
 
-        var result = await userService.UpdatePasswordAsync(userId, request);
+        var result = await authService.UpdatePasswordAsync(userId, request);
 
         if (result.Succeeded)
         {

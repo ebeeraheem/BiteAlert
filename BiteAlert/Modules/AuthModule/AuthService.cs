@@ -209,6 +209,41 @@ public class AuthService(ApplicationDbContext context,
         };
     }
 
+    //public async Task<AuthResponse> GenerateEmailConfirmationTokenAsync(string userId)
+    //{
+    //    var user = await userManager.FindByIdAsync(userId);
+
+    //    if (user is null)
+    //    {
+    //        logger.LogWarning("User with Id {Id} not found", userId);
+
+    //        return new AuthResponse()
+    //        {
+    //            Succeeded = false,
+    //            Message = "User not found."
+    //        };
+    //    }
+
+    //    // Generate email verification token
+    //    var emailConfirmationToken = await userManager.GenerateEmailConfirmationTokenAsync(user);
+
+    //    // Publish user registered event
+    //    logger.LogInformation("Publishing user registered event.");
+    //    await mediator.Publish(new UserRegisteredEvent
+    //    {
+    //        UserId = user.Id,
+    //        UserName = user.UserName!,
+    //        Email = user.Email!,
+    //        EmailConfirmationToken = emailConfirmationToken
+    //    });
+
+    //    return new AuthResponse()
+    //    {
+    //        Succeeded = true,
+    //        Message = "Email confirmation token sent successfully."
+    //    };
+    //}
+
     private string GenerateJwtToken(ApplicationUser user)
     {
         logger.LogInformation("Generating JWT token for user with email: {Email}", user.Email);
@@ -254,5 +289,5 @@ public class AuthService(ApplicationDbContext context,
         var tokenString = new JwtSecurityTokenHandler().WriteToken(token);
 
         return tokenString;
-    }    
+    }
 }
