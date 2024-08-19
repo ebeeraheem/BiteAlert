@@ -63,6 +63,8 @@ public class VendorService(UserManager<ApplicationUser> userManager,
                 BusinessPhoneNumber = request.BusinessPhoneNumber
             };
 
+            user.LastUpdatedAt = DateTime.UtcNow;
+
             // Save the vendor
             await context.Vendors.AddAsync(vendor);
             await context.SaveChangesAsync();
@@ -99,7 +101,6 @@ public class VendorService(UserManager<ApplicationUser> userManager,
             .SingleOrDefaultAsync(v => v.User.UserName == userName);
     }
 
-    // Update vendor information
     public async Task<UpsertVendorResponse> UpdateVendorBusinessInfo(string vendorId, UpsertVendorRequest request)
     {
         var transaction = await context.Database
@@ -107,8 +108,10 @@ public class VendorService(UserManager<ApplicationUser> userManager,
 
         try
         {
-            var vendor = await context.Vendors.SingleOrDefaultAsync(
-                                    v => v.Id.ToString() == vendorId);
+            var vendor = await context.Vendors
+                        .Include(v => v.User)
+                        .SingleOrDefaultAsync(v => 
+                                v.Id.ToString() == vendorId);
 
             if (vendor is null)
             {
@@ -123,23 +126,25 @@ public class VendorService(UserManager<ApplicationUser> userManager,
             // Update only the fields provided in the request
             logger.LogInformation("Updating business information for vendor {Id}", vendorId);
 
-            if (request.BusinessName is not null)
+            if (string.IsNullOrWhiteSpace(request.BusinessName) is false)
                 vendor.BusinessName = request.BusinessName;
 
-            if (request.BusinessTagline is not null)
+            if (string.IsNullOrWhiteSpace(request.BusinessTagline) is false)
                 vendor.BusinessTagline = request.BusinessTagline;
 
-            if (request.BusinessDescription is not null)
+            if (string.IsNullOrWhiteSpace(request.BusinessDescription) is false)
                 vendor.BusinessDescription = request.BusinessDescription;
 
-            if (request.BusinessAddress is not null)
+            if (string.IsNullOrWhiteSpace(request.BusinessAddress) is false)
                 vendor.BusinessAddress = request.BusinessAddress;
 
-            if (request.BusinessEmail is not null)
+            if (string.IsNullOrWhiteSpace(request.BusinessEmail) is false)
                 vendor.BusinessEmail = request.BusinessEmail;
 
-            if (request.BusinessPhoneNumber is not null)
+            if (string.IsNullOrWhiteSpace(request.BusinessPhoneNumber) is false)
                 vendor.BusinessPhoneNumber = request.BusinessPhoneNumber;
+
+            vendor.User.LastUpdatedAt = DateTime.UtcNow;
 
             context.Vendors.Update(vendor);
             await context.SaveChangesAsync();
