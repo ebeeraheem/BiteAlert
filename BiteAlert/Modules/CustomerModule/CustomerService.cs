@@ -11,8 +11,6 @@ public class CustomerService(UserManager<ApplicationUser> userManager,
 {
     public async Task<Customer?> GetCustomerById(string userId)
     {
-        logger.LogInformation("Searching for customer by Id {Id}", userId);
-
         return await context.Customers.SingleOrDefaultAsync(
             u => u.Id.ToString() == userId);
     }
@@ -20,11 +18,9 @@ public class CustomerService(UserManager<ApplicationUser> userManager,
     public async Task<UpsertCustomerResponse> RegisterCustomerAsync(string userId)
     {
         var user = await userManager.FindByIdAsync(userId);
-
         if (user is null)
         {
             logger.LogWarning("User with Id {Id} not found.", userId);
-
             return new UpsertCustomerResponse()
             {
                 Succeeded = false,
@@ -32,44 +28,14 @@ public class CustomerService(UserManager<ApplicationUser> userManager,
             };
         }
 
-        var isValidGuid = Guid.TryParse(userId, out Guid userGuid);
-
-        if (!isValidGuid)
+        var isCustomer = await userManager.IsInRoleAsync(user, "Customer");
+        if (isCustomer is false)
         {
-            logger.LogWarning("Invalid user Id: {Id}", userId);
-
+            logger.LogWarning("User is not a customer. User ID: {Id}", userId);
             return new UpsertCustomerResponse()
             {
                 Succeeded = false,
-                Message = "Invalid user id."
-            };
-        }
-
-        // Check if the user is a vendor
-        var userIsVendor = await context.Vendors.FindAsync(userGuid);
-
-        if (userIsVendor is not null)
-        {
-            logger.LogWarning("User {Id} is already registered as a vendor.", userGuid);
-
-            return new UpsertCustomerResponse()
-            {
-                Succeeded = false,
-                Message = "You are currently registered as a vendor."
-            };
-        }
-
-        // Check if the user is already a customer
-        var userIsCustomer = await context.Customers.FindAsync(userGuid);
-
-        if (userIsCustomer is not null)
-        {
-            logger.LogWarning("User {Id} is already registered as a customer.", userGuid);
-
-            return new UpsertCustomerResponse()
-            {
-                Succeeded = false,
-                Message = "User is already a customer."
+                Message = "User is not a customer."
             };
         }
 
@@ -78,6 +44,8 @@ public class CustomerService(UserManager<ApplicationUser> userManager,
             Id = user.Id,
             User = user
         };
+
+        user.LastUpdatedAt = DateTime.UtcNow;
 
         await context.Customers.AddAsync(customer);
         await context.SaveChangesAsync();
