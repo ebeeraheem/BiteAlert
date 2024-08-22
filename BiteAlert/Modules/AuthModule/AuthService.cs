@@ -205,12 +205,12 @@ public class AuthService(ApplicationDbContext context,
         };
     }
 
-    public async Task<AuthResponse> ResetPasswordAsync(PasswordResetRequest model)
+    public async Task<AuthResponse> ResetPasswordAsync(PasswordResetRequest request)
     {
-        var user = await userManager.FindByIdAsync(model.UserId);
+        var user = await userManager.FindByIdAsync(request.UserId);
         if (user is null)
         {
-            logger.LogWarning("User not found. User ID: {Id}", model.UserId);
+            logger.LogWarning("User not found. User ID: {Id}", request.UserId);
 
             return new AuthResponse()
             {
@@ -220,8 +220,8 @@ public class AuthService(ApplicationDbContext context,
         }
 
         var result = await userManager.ResetPasswordAsync(user,
-                                                          model.PasswordResetToken,
-                                                          model.ConfirmPassword);
+                                                          request.PasswordResetToken,
+                                                          request.ConfirmPassword);
 
         if (result.Succeeded is false)
         {

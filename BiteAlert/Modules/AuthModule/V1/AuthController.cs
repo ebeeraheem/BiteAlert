@@ -15,7 +15,8 @@ public class AuthController(IAuthService authService,
                             UserContextService userContext,
                             ILogger<AuthController> logger,
                             IValidator<RegisterUserRequest> registerValidator,
-                            IValidator<LoginUserRequest> loginValidator) : ControllerBase
+                            IValidator<LoginUserRequest> loginValidator,
+                            IValidator<PasswordResetRequest> passwordResetValidator) : ControllerBase
 {
     [AllowAnonymous]
     [HttpPost("register")]
@@ -259,7 +260,7 @@ public class AuthController(IAuthService authService,
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
-    public async Task<IActionResult> PasswordResetConfirmation(PasswordResetRequest model)
+    public async Task<IActionResult> PasswordResetConfirmation(PasswordResetRequest request)
     {
         var userId = userContext.GetUserId();
         if (userId is null)
@@ -268,12 +269,48 @@ public class AuthController(IAuthService authService,
             return Unauthorized();
         }
 
-        var result = await authService.ResetPasswordAsync(model);
-        if (result.Succeeded)
+        var validationResult = passwordResetValidator.Validate(request);
+
+        if (validationResult.IsValid is false)
         {
-            return Ok(result);
+            var failedResponse = new AuthResponse
+            {
+                Succeeded = false,
+                Message = "Password reset failed.",
+                FluentValidationErrors = validationResult.Errors
+                    .Select(error => new FluentValidationError
+                    {
+                        PropertyName = error.PropertyName,
+                        ErrorMessage = error.ErrorMessage
+                    })
+            };
+
+            logger.LogWarning("Password reset request failed validation. Errors: {Errors}",
+                        validationResult);
+
+            return BadRequest(failedResponse);
         }
 
-        return BadRequest(result);
+        try
+        {
+            logger.LogInformation("Attempting to reset password for user with ID: {UserId}", request.UserId);
+            var result = await authService.ResetPasswordAsync(request);
+            if (result.Succeeded)
+            {
+                logger.LogInformation("Password reset successful. User ID: {UserId}", request.UserId);
+                return Ok(result);
+            }
+
+            logger.LogWarning("Password reset failed. User ID: {UserId}", request.UserId);
+            return BadRequest(result);
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "An unexpected error occurred during password reset with ID: {UserId}",
+                        request.UserId);
+
+            return StatusCode(StatusCodes.Status500InternalServerError,
+                "An unexpected error occurred. Password reset failed.");
+        }
     }
 }
