@@ -1,5 +1,6 @@
 ﻿using BiteAlert.Modules.AuthModule;
 using BiteAlert.Modules.CustomerModule;
+using BiteAlert.Modules.EmailModule;
 using BiteAlert.Modules.ProductModule;
 using BiteAlert.Modules.UserModule;
 using BiteAlert.Modules.Utilities;
@@ -17,6 +18,7 @@ public static class CustomServices
         services.AddScoped<IVendorService, VendorService>();
         services.AddScoped<ICustomerService, CustomerService>();
         services.AddScoped<IProductService, ProductService>();
+        services.AddScoped<IEmailConfigurationService, EmailConfigurationService>();
         services.AddScoped<UserContextService>();
     }
 }

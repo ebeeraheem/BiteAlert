@@ -175,9 +175,69 @@ public class AuthService(ApplicationDbContext context,
         };
     }
 
-    public Task<AuthResponse> ResetPasswordAsync()
+    public async Task<AuthResponse> SendPasswordResetEmail(string userId)
     {
-        throw new NotImplementedException();
+        var user = await userManager.FindByIdAsync(userId);
+        if (user is null)
+        {
+            logger.LogWarning("User with Id {Id} not found", userId);
+            return new AuthResponse()
+            {
+                Succeeded = false,
+                Message = "User not found."
+            };
+        }
+
+        var passwordResetToken = await userManager.GeneratePasswordResetTokenAsync(user);
+
+        await mediator.Publish(new PasswordResetEvent
+        {
+            UserId = user.Id,
+            UserName = user.UserName!,
+            Email = user.Email!,
+            PasswordResetToken = passwordResetToken
+        });
+
+        return new AuthResponse()
+        {
+            Succeeded = true,
+            Message = "Password reset token sent successfully."
+        };
+    }
+
+    public async Task<AuthResponse> ResetPasswordAsync(PasswordResetRequest model)
+    {
+        var user = await userManager.FindByIdAsync(model.UserId);
+        if (user is null)
+        {
+            logger.LogWarning("User not found. User ID: {Id}", model.UserId);
+
+            return new AuthResponse()
+            {
+                Succeeded = false,
+                Message = "User not found."
+            };
+        }
+
+        var result = await userManager.ResetPasswordAsync(user,
+                                                          model.PasswordResetToken,
+                                                          model.ConfirmPassword);
+
+        if (result.Succeeded is false)
+        {
+            return new AuthResponse
+            {
+                Succeeded = false,
+                Message = "Password reset failed.",
+                IdentityErrors = result.Errors
+            };
+        }
+
+        return new AuthResponse()
+        {
+            Succeeded = true,
+            Message = "Password reset successful."
+        };
     }
 
     public async Task<AuthResponse> VerifyEmailAsync(string userId, string token)

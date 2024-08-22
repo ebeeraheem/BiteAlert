@@ -230,4 +230,50 @@ public class AuthController(IAuthService authService,
 
         return BadRequest(result);
     }
+
+    [HttpPost("send-password-reset-email")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    public async Task<IActionResult> SendPasswordResetEmail()
+    {
+        var userId = userContext.GetUserId();
+        if (userId is null)
+        {
+            logger.LogWarning("Unauthorized attempt to send password reset email.");
+            return Unauthorized();
+        }
+
+        var result = await authService.SendPasswordResetEmail(userId);
+        if (result.Succeeded)
+        {
+            return Ok(result);
+        }
+
+        return BadRequest(result);
+    }
+
+    [HttpPost("password-reset-confirmation")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    public async Task<IActionResult> PasswordResetConfirmation(PasswordResetRequest model)
+    {
+        var userId = userContext.GetUserId();
+        if (userId is null)
+        {
+            logger.LogWarning("Unauthorized attempt to reset password.");
+            return Unauthorized();
+        }
+
+        var result = await authService.ResetPasswordAsync(model);
+        if (result.Succeeded)
+        {
+            return Ok(result);
+        }
+
+        return BadRequest(result);
+    }
 }

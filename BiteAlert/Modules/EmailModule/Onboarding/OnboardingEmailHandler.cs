@@ -55,16 +55,16 @@ public class OnboardingEmailHandler(
         }
     }
 
-    private OnboardingEmailRequest CreateOnboardingEmail(UserRegisteredEvent notification)
+    private EmailTemplate CreateOnboardingEmail(UserRegisteredEvent notification)
     {
-        var onboardingEmail = new OnboardingEmailRequest
+        var onboardingEmail = new EmailTemplate
         {
             From = new From { Email = _fromEmail, Name = _fromName },
             To = [new() { Email = notification.Email, Name = notification.UserName }],
             Personalization = [new Personalization()
             {
                 Email = notification.Email,
-                Data = new Data()
+                Data = new OnboardingEmailData()
                 {
                     UserName = notification.UserName,
                     SupportEmail = _supportEmail,

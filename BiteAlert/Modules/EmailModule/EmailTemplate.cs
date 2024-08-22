@@ -2,9 +2,9 @@
 
 using System.Text.Json.Serialization;
 
-namespace BiteAlert.Modules.EmailModule.Onboarding;
+namespace BiteAlert.Modules.EmailModule;
 
-public class OnboardingEmailRequest : IEmailRequestBase
+public class EmailTemplate
 {
     public From From { get; set; } = null!;
     public List<To> To { get; set; } = null!;
