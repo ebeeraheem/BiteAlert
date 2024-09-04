@@ -26,6 +26,15 @@ public class UserService(ApplicationDbContext context,
             };
         }
 
+        if (await roleManager.RoleExistsAsync(roleName) is false)
+        {
+            return new UserProfileResponse()
+            {
+                Succeeded = false,
+                Message = "Selected role does not exist."
+            };
+        }
+
         var userRoles = await userManager.GetRolesAsync(user);
 
         if (userRoles.Any() && userRoles.Contains("Admin") is false)
@@ -34,15 +43,6 @@ public class UserService(ApplicationDbContext context,
             {
                 Succeeded = false,
                 Message = "Role selection is not allowed."
-            };
-        }
-
-        if (await roleManager.RoleExistsAsync(roleName) is false)
-        {
-            return new UserProfileResponse()
-            {
-                Succeeded = false,
-                Message = "Selected role does not exist."
             };
         }
 
