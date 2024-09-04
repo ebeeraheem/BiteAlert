@@ -1,11 +1,9 @@
-using Asp.Versioning;
 using BiteAlert.Exceptions;
 using BiteAlert.Infrastructure.Data;
 using BiteAlert.StartupConfigs;
 using FluentValidation;
 using Microsoft.EntityFrameworkCore;
 using Serilog;
-using System.Net.Http.Headers;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -27,17 +25,7 @@ builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
 builder.Services.AddProblemDetails();
 
 // Configure MailerSend HTTP client
-var apiKey = builder.Configuration["MailerSend:ApiKey"] ?? 
-    throw new ArgumentException("Failed to get MailerSend API key.");
-
-var sendEmailUrl = builder.Configuration["MailerSend:SendEmailUrl"] ?? 
-    throw new ArgumentException("Failed to get MailerSend email sending url.");
-
-builder.Services.AddHttpClient("mailerSend", client =>
-{
-    client.BaseAddress = new Uri(sendEmailUrl);
-    client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", apiKey);
-});
+builder.Services.AddMailerSendConfig(builder.Configuration);
 
 // Add FluentValidator
 builder.Services.AddValidatorsFromAssemblyContaining<Program>();
