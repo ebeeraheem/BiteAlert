@@ -354,7 +354,7 @@ public class AuthService(ApplicationDbContext context,
         audience: audience,
         claims: claims,
         notBefore: DateTime.UtcNow,
-        expires: DateTime.UtcNow.AddMinutes(3),
+        expires: DateTime.UtcNow.AddDays(1),
         signingCredentials: credentials);
 
         var tokenString = new JwtSecurityTokenHandler().WriteToken(token);
