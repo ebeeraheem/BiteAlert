@@ -17,20 +17,7 @@ builder.Host.UseSerilog((context, loggerConfiguration) =>
 });
 
 // Configure API version
-builder.Services.AddApiVersioning(options =>
-{
-    options.DefaultApiVersion = new ApiVersion(1, 0);
-    options.AssumeDefaultVersionWhenUnspecified = true;
-    options.ReportApiVersions = true;
-    options.ApiVersionReader = ApiVersionReader.Combine(
-        new UrlSegmentApiVersionReader(),
-        new HeaderApiVersionReader("X-Api-Version"));
-}).AddApiExplorer(options =>
-{
-    options.GroupNameFormat = "'v'V";
-    options.SubstituteApiVersionInUrl = true;
-});
-
+builder.Services.AddApiVersionConfig();
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
