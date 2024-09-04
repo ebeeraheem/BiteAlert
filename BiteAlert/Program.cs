@@ -37,14 +37,8 @@ builder.Services.AddCustomServices();
 
 var app = builder.Build();
 
-// Seed roles
-using (var scope = app.Services.CreateScope())
-{
-    var services = scope.ServiceProvider;
-    var context = services.GetRequiredService<ApplicationDbContext>();
-    await Seeder.SeedRoles(services);
-    await Seeder.SeedAdminUser(services, builder.Configuration, context);
-}
+// Seed roles and default admin user
+await app.UseSeeding(builder.Configuration);
 
 // Configure the HTTP request pipeline.
 app.UseSwagger();

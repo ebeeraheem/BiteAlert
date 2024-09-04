@@ -25,7 +25,9 @@ public static class Seeder
         }
     }
 
-    public static async Task SeedAdminUser(IServiceProvider serviceProvider, IConfiguration config, ApplicationDbContext context)
+    public static async Task SeedAdminUser(IServiceProvider serviceProvider,
+                                           IConfiguration config,
+                                           ApplicationDbContext context)
     {
         using var scope = serviceProvider.CreateScope();
         var userManager = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
@@ -94,5 +96,14 @@ public static class Seeder
         {
             // Log: Failed to create admin user, reason(s): {string.Join(", ", result.Errors.Select(e => e.Description))}
         }
+    }
+
+    public static async Task UseSeeding(this WebApplication app, IConfiguration config)
+    {
+        using var scope = app.Services.CreateScope();
+        var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+
+        await SeedRoles(scope.ServiceProvider);
+        await SeedAdminUser(scope.ServiceProvider, config, context);
     }
 }
