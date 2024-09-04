@@ -8,23 +8,12 @@ namespace BiteAlert.Modules.EmailModule.Onboarding;
 
 public class OnboardingEmailHandler(
     IHttpClientFactory httpClientFactory,
+    IEmailConfigurationService emailConfig,
     IConfiguration config,
     ILogger<OnboardingEmailHandler> logger) : INotificationHandler<UserRegisteredEvent>
 {
-    private readonly string _fromEmail = config.GetSection("MailerSend:From:Email").Value ??
-        throw new ArgumentException("Failed to get MailerSend sender email from the configurations.");
-
-    private readonly string _fromName = config.GetSection("MailerSend:From:Name").Value ??
-        throw new ArgumentException("Failed to get MailerSend sender name from the configurations.");
-
     private readonly string _templateId = config.GetSection("OnboardingEmail:TemplateId").Value ??
         throw new ArgumentException("Failed to get Onboarding Template ID from the configurations.");
-
-    private readonly string _supportEmail = config.GetSection("OnboardingEmail:SupportEmail").Value ??
-        throw new ArgumentException("Failed to get Onboarding Support Email from the configurations.");
-
-    private readonly string _baseUrl = config.GetSection("BiteAlert:BaseUrl").Value ??
-        throw new ArgumentException("Failed to get Bite Alert base url from the configurations.");
 
     private readonly HttpClient _httpClient = httpClientFactory.CreateClient("mailerSend");
 
@@ -59,7 +48,7 @@ public class OnboardingEmailHandler(
     {
         var onboardingEmail = new EmailTemplate
         {
-            From = new From { Email = _fromEmail, Name = _fromName },
+            From = new From { Email = emailConfig.FromEmail, Name = emailConfig.FromName },
             To = [new() { Email = notification.Email, Name = notification.UserName }],
             Personalization = [new Personalization()
             {
@@ -67,7 +56,7 @@ public class OnboardingEmailHandler(
                 Data = new OnboardingEmailData()
                 {
                     UserName = notification.UserName,
-                    SupportEmail = _supportEmail,
+                    SupportEmail = emailConfig.SupportEmail,
                     EmailConfirmationLink = GenerateEmailConfirmationLink(notification.UserId,
                                                                           notification.EmailConfirmationToken),
                 }
@@ -82,6 +71,6 @@ public class OnboardingEmailHandler(
     {
         var encodedToken = HttpUtility.UrlEncode(token);
 
-        return $"{_baseUrl}/api/v1/auth/verify-email?userId={userId}&token={encodedToken}";
+        return $"{emailConfig.BaseUrl}/api/v1/auth/verify-email?userId={userId}&token={encodedToken}";
     }
 }
