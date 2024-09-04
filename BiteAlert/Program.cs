@@ -14,32 +14,23 @@ builder.Host.UseSerilog((context, loggerConfiguration) =>
     loggerConfiguration.ReadFrom.Configuration(context.Configuration);
 });
 
-// Configure API version
 builder.Services.AddApiVersionConfig();
-
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 
-// Add global exception handler
 builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
 builder.Services.AddProblemDetails();
 
-// Configure MailerSend HTTP client
 builder.Services.AddMailerSendConfig(builder.Configuration);
-
-// Add FluentValidator
 builder.Services.AddValidatorsFromAssemblyContaining<Program>();
 
-// Configure MediatR
 builder.Services.AddMediatR(config => 
     config.RegisterServicesFromAssemblyContaining<Program>());
 
-// Configure database connection string
 builder.Services.AddDbContext<ApplicationDbContext>(
     options => options.UseSqlServer(
         builder.Configuration.GetConnectionString("DefaultConnection")));
 
-// Configure custom services and configurations
 builder.Services.AddSwaggerConfigurations(builder.Configuration);
 builder.Services.AddJwtAuthentication(builder.Configuration);
 builder.Services.AddCustomServices();
