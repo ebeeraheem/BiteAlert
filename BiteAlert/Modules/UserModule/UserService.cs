@@ -1,5 +1,4 @@
-﻿
-using BiteAlert.Infrastructure.Data;
+﻿using BiteAlert.Infrastructure.Data;
 using BiteAlert.Modules.Shared;
 using Microsoft.AspNetCore.Identity;
 
@@ -97,7 +96,9 @@ public class UserService(ApplicationDbContext context,
             if (string.IsNullOrWhiteSpace(request.PhoneNumber) is false)
                 user.PhoneNumber = request.PhoneNumber;
 
-            if (request.DateOfBirth is not null)
+            var minAge = DateTime.UtcNow.AddYears(-13);
+
+            if (request.DateOfBirth <= minAge)
                 user.DateOfBirth = request.DateOfBirth;
 
             if (string.IsNullOrWhiteSpace(request.ProfilePictureUrl) is false)
