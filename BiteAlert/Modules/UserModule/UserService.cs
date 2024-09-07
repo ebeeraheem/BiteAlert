@@ -75,7 +75,7 @@ public class UserService(ApplicationDbContext context,
             if (user is null)
             {
                 logger.LogWarning("User with Id {Id} not found.", userId);
-
+                await transaction.RollbackAsync();
                 return new UserProfileResponse()
                 {
                     Succeeded = false,
