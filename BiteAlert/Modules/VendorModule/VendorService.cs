@@ -103,7 +103,7 @@ public class VendorService(UserManager<ApplicationUser> userManager,
     public async Task<PagedResult<Vendor>> GetVendorsByUserNameAsync(string userName, int pageNumber, int pageSize)
     {
         var query = context.Vendors
-            .Where(v => v.User.UserName!.Contains(userName));
+            .Where(v => v.User.UserName.Contains(userName));
 
         return await pagedResultService.GetPagedResultAsync(query, pageNumber, pageSize);
     }

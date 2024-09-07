@@ -194,8 +194,8 @@ public class AuthService(ApplicationDbContext context,
         await mediator.Publish(new PasswordResetEvent
         {
             UserId = user.Id,
-            UserName = user.UserName!,
-            Email = user.Email!,
+            UserName = user.UserName,
+            Email = user.Email,
             PasswordResetToken = passwordResetToken
         });
 
@@ -306,8 +306,8 @@ public class AuthService(ApplicationDbContext context,
         await mediator.Publish(new UserRegisteredEvent
         {
             UserId = user.Id,
-            UserName = user.UserName!,
-            Email = user.Email!,
+            UserName = user.UserName,
+            Email = user.Email,
             EmailConfirmationToken = emailConfirmationToken
         });
 
@@ -332,7 +332,7 @@ public class AuthService(ApplicationDbContext context,
             string.IsNullOrEmpty(issuer) || 
             string.IsNullOrEmpty(audience))
         {
-            logger.LogWarning("Failed to get JWT configuration values for user with email: {Email}",
+            logger.LogError("Failed to get JWT configuration values for user with email: {Email}",
                         user.UserName);
 
             throw new InvalidOperationException("JWT configuration values are missing.");
@@ -340,8 +340,8 @@ public class AuthService(ApplicationDbContext context,
 
         var claims = new List<Claim>()
         {
-            new(ClaimTypes.Email, user.Email!),
-            new(ClaimTypes.Name, user.UserName!),
+            new(ClaimTypes.Email, user.Email),
+            new(ClaimTypes.Name, user.UserName),
             new(ClaimTypes.NameIdentifier, user.Id.ToString())
         };
 
