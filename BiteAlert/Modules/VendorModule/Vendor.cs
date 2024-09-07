@@ -19,11 +19,7 @@ public class Vendor
     public string? BusinessTagline { get; set; }
     public string BusinessDescription { get; set; } = string.Empty;
     public string BusinessAddress { get; set; } = string.Empty;
-
-    [EmailAddress]
     public string? BusinessEmail { get; set; }
-
-    [Phone]
     public string? BusinessPhoneNumber { get; set; }
 
     public ICollection<Product>? Products { get; set; }

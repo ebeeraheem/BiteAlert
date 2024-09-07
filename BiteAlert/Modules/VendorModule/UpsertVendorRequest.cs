@@ -10,10 +10,6 @@ public class UpsertVendorRequest
     public string? BusinessTagline { get; set; }
     public required string BusinessDescription { get; set; }
     public required string BusinessAddress { get; set; }
-
-    [EmailAddress]
     public string? BusinessEmail { get; set; }
-
-    [Phone]
     public string? BusinessPhoneNumber { get; set;}
 }
