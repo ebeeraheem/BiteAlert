@@ -98,10 +98,14 @@ public class VendorService(UserManager<ApplicationUser> userManager,
             .SingleOrDefaultAsync(v => v.Id.ToString() == vendorId);
     }
 
-    public async Task<Vendor?> GetVendorByUserNameAsync(string userName)
+    public async Task<List<Vendor>> GetVendorsByUserNameAsync(string userName)
     {
-        return await context.Vendors
-            .SingleOrDefaultAsync(v => v.User.UserName == userName);
+        var vendors = await context.Vendors
+            .Include(v => v.User)
+            .Where(v => v.User.UserName!.Contains(userName))
+            .ToListAsync();
+
+        return vendors;
     }
 
     public async Task<UpsertVendorResponse> UpdateVendorBusinessInfo(string vendorId, UpsertVendorRequest request)

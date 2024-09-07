@@ -102,17 +102,17 @@ public class VendorsController(IVendorService vendorService,
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> GetVendorByUserName(string userName)
+    public async Task<IActionResult> GetVendorsByUserName(string userName)
     {
-        logger.LogInformation("Attempting to find vendor with username {Username}", userName);
+        logger.LogInformation("Attempting to find vendors with username {Username}", userName);
 
-        var vendor = await vendorService.GetVendorByUserNameAsync(userName);
+        var vendor = await vendorService.GetVendorsByUserNameAsync(userName);
 
         if (vendor is null)
         {
-            logger.LogWarning("Vendor with username {Username} not found.", userName);
+            logger.LogWarning("Vendors with username {Username} not found.", userName);
 
-            return NotFound("Vendor not found");
+            return NotFound("No vendor found.");
         }
 
         return Ok(vendor);

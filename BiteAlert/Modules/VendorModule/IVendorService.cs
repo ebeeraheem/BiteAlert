@@ -4,6 +4,6 @@ public interface IVendorService
 {
     Task<UpsertVendorResponse> RegisterVendorAsync(string userId, UpsertVendorRequest request);
     Task<Vendor?> GetVendorByIdAsync(string vendorId);
-    Task<Vendor?> GetVendorByUserNameAsync(string userName);
+    Task<List<Vendor>> GetVendorsByUserNameAsync(string userName);
     Task<UpsertVendorResponse> UpdateVendorBusinessInfo(string vendorId, UpsertVendorRequest request);
 }
