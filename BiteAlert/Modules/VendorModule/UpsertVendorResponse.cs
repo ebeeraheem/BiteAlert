@@ -1,9 +1,12 @@
 ﻿// Ignore Spelling: Upsert
 
+using BiteAlert.Modules.Shared;
+using System.Text.Json.Serialization;
+
 namespace BiteAlert.Modules.VendorModule;
 
-public class UpsertVendorResponse
+public class UpsertVendorResponse : BaseResponse
 {
-    public bool Succeeded { get; set; }
-    public string Message { get; set; } = string.Empty;
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public IEnumerable<FluentValidationError>? FluentValidationErrors { get; set; }
 }

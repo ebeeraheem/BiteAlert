@@ -1,4 +1,5 @@
 ﻿using Asp.Versioning;
+using BiteAlert.Modules.Shared;
 using BiteAlert.Modules.Utilities;
 using FluentValidation;
 using Microsoft.AspNetCore.Mvc;
@@ -30,8 +31,19 @@ public class VendorsController(IVendorService vendorService,
         var validationResult = validator.Validate(request);
         if (validationResult.IsValid is false)
         {
+            var failedResponse = new UpsertVendorResponse
+            {
+                Succeeded = false,
+                Message = "Failed to register vendor.",
+                FluentValidationErrors = validationResult.Errors
+                    .Select(error => new FluentValidationError()
+                    {
+                        PropertyName = error.PropertyName,
+                        ErrorMessage = error.ErrorMessage
+                    })
+            };
             logger.LogWarning("Register vendor request failed validation. Errors: {Errors}",
-                        validationResult);
+                        failedResponse);
 
             return BadRequest(validationResult);
         }
