@@ -1,5 +1,6 @@
 ﻿using BiteAlert.Infrastructure.Data;
 using BiteAlert.Modules.Shared;
+using BiteAlert.Modules.Shared.PagedResult;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
@@ -7,6 +8,7 @@ namespace BiteAlert.Modules.VendorModule;
 
 public class VendorService(UserManager<ApplicationUser> userManager,
                            ApplicationDbContext context,
+                           IPagedResultService pagedResultService,
                            ILogger<VendorService> logger) : IVendorService
 {
     public async Task<UpsertVendorResponse> RegisterVendorAsync(string userId, UpsertVendorRequest request)
@@ -98,14 +100,12 @@ public class VendorService(UserManager<ApplicationUser> userManager,
             .SingleOrDefaultAsync(v => v.Id.ToString() == vendorId);
     }
 
-    public async Task<List<Vendor>> GetVendorsByUserNameAsync(string userName)
+    public async Task<PagedResult<Vendor>> GetVendorsByUserNameAsync(string userName, int pageNumber, int pageSize)
     {
-        var vendors = await context.Vendors
-            .Include(v => v.User)
-            .Where(v => v.User.UserName!.Contains(userName))
-            .ToListAsync();
+        var query = context.Vendors
+            .Where(v => v.User.UserName!.Contains(userName));
 
-        return vendors;
+        return await pagedResultService.GetPagedResultAsync(query, pageNumber, pageSize);
     }
 
     public async Task<UpsertVendorResponse> UpdateVendorBusinessInfo(string vendorId, UpsertVendorRequest request)
