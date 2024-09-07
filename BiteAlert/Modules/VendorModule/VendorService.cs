@@ -20,6 +20,7 @@ public class VendorService(UserManager<ApplicationUser> userManager,
             if (user is null)
             {
                 logger.LogWarning("User with Id {Id} not found.", userId);
+                await transaction.RollbackAsync();
                 return new UpsertVendorResponse()
                 {
                     Succeeded = false,
@@ -31,6 +32,7 @@ public class VendorService(UserManager<ApplicationUser> userManager,
             if (isVendor is false)
             {
                 logger.LogWarning("User is not a vendor. User ID: {Id}", userId);
+                await transaction.RollbackAsync();
                 return new UpsertVendorResponse()
                 {
                     Succeeded = false,
@@ -43,6 +45,7 @@ public class VendorService(UserManager<ApplicationUser> userManager,
             if (isVerified is false)
             {
                 logger.LogWarning("Vendor email is not verified. Email: {Email}", user.Email);
+                await transaction.RollbackAsync();
                 return new UpsertVendorResponse()
                 {
                     Succeeded = false,
@@ -116,6 +119,7 @@ public class VendorService(UserManager<ApplicationUser> userManager,
             if (vendor is null)
             {
                 logger.LogWarning("Vendor with Id {Id} not found.", vendorId);
+                await transaction.RollbackAsync();
                 return new UpsertVendorResponse()
                 {
                     Succeeded = false,
