@@ -1,6 +1,7 @@
 ﻿using BiteAlert.Infrastructure.Data;
 using BiteAlert.Modules.Shared;
 using Microsoft.AspNetCore.Identity;
+using System.Globalization;
 
 namespace BiteAlert.Modules.UserModule;
 
@@ -96,10 +97,8 @@ public class UserService(ApplicationDbContext context,
             if (string.IsNullOrWhiteSpace(request.PhoneNumber) is false)
                 user.PhoneNumber = request.PhoneNumber;
 
-            var minAge = DateTime.UtcNow.AddYears(-13);
-
-            if (request.DateOfBirth <= minAge)
-                user.DateOfBirth = request.DateOfBirth;
+            if (string.IsNullOrWhiteSpace(request.DateOfBirth) is false)
+                user.DateOfBirth = DateTime.Parse(request.DateOfBirth, new CultureInfo("en-GB"));
 
             if (string.IsNullOrWhiteSpace(request.ProfilePictureUrl) is false)
                 user.ProfilePictureUrl = request.ProfilePictureUrl;

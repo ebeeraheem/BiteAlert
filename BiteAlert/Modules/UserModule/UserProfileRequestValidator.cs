@@ -1,6 +1,7 @@
 ﻿// Ignore Spelling: Validator
 
 using FluentValidation;
+using System.Globalization;
 
 namespace BiteAlert.Modules.UserModule;
 
@@ -30,13 +31,26 @@ public class UserProfileRequestValidator : AbstractValidator<UserProfileRequest>
             .When(request => !string.IsNullOrEmpty(request.PhoneNumber));
 
         RuleFor(request => request.DateOfBirth)
-            .LessThanOrEqualTo(DateTime.UtcNow)
-            .WithMessage("Date of birth cannot be in the future.")
-            .When(request => request.DateOfBirth.HasValue);
+            .NotEmpty().WithMessage("Date of birth is required.")
+            .Must(BeAValidDate).WithMessage("Date of birth must be a valid date.")
+            .Must(BeAtLeast13YearsOld).WithMessage("User must be at least 13 years old.")
+            .When(request => !string.IsNullOrEmpty(request.DateOfBirth));
+    }
 
-        //RuleFor(request => request.ProfilePictureUrl)
-        //    .Must(url => Uri.IsWellFormedUriString(url, UriKind.Absolute))
-        //    .WithMessage("Profile picture URL must be a valid URL.")
-        //    .When(request => !string.IsNullOrEmpty(request.ProfilePictureUrl));
+    // Helper method to check if the date is valid
+    private bool BeAValidDate(string? dateOfBirth)
+    {
+        return DateTime.TryParse(dateOfBirth, new CultureInfo("en-GB"), out _);
+    }
+
+    // Helper method to check if the user is at least 13 years old
+    private bool BeAtLeast13YearsOld(string? dateOfBirth)
+    {
+        if (DateTime.TryParse(dateOfBirth, new CultureInfo("en-GB"), out DateTime parsedDate))
+        {
+            var minAgeDate = DateTime.UtcNow.AddYears(-13);
+            return parsedDate <= minAgeDate;
+        }
+        return false;
     }
 }
