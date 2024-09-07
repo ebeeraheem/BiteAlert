@@ -43,9 +43,9 @@ public class VendorsController(IVendorService vendorService,
                     })
             };
             logger.LogWarning("Register vendor request failed validation. Errors: {Errors}",
-                        failedResponse);
+                        validationResult);
 
-            return BadRequest(validationResult);
+            return BadRequest(failedResponse);
         }
 
         try
