@@ -22,7 +22,7 @@ public class UserProfileRequestValidator : AbstractValidator<UserProfileRequest>
         RuleFor(request => request.UserName)
             .Matches(@"^[a-zA-Z0-9_]+$")
             .WithMessage("Username can only contain alphanumeric characters and underscores.")
-            .Length(3, 20).WithMessage("Username must be between 3 and 20 characters long.")
+            .Length(3, 30).WithMessage("Username must be between 3 and 30 characters long.")
             .When(request => !string.IsNullOrEmpty(request.UserName));
 
         RuleFor(request => request.PhoneNumber)
