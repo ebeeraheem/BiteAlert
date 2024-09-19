@@ -176,12 +176,12 @@ public class AuthService(ApplicationDbContext context,
         };
     }
 
-    public async Task<AuthResponse> SendPasswordResetEmail(string userId)
+    public async Task<AuthResponse> SendPasswordResetEmail(ForgotPasswordRequest request)
     {
-        var user = await userManager.FindByIdAsync(userId);
+        var user = await userManager.FindByEmailAsync(request.Email);
         if (user is null)
         {
-            logger.LogWarning("User with Id {Id} not found", userId);
+            logger.LogWarning("User not found. Email: {Email}", request.Email);
             return new AuthResponse()
             {
                 Succeeded = false,

@@ -232,26 +232,21 @@ public class AuthController(IAuthService authService,
         return BadRequest(result);
     }
 
+    [AllowAnonymous]
     [HttpPost("send-password-reset-email")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
-    public async Task<IActionResult> SendPasswordResetEmail()
+    public async Task<IActionResult> SendPasswordResetEmail([FromBody] ForgotPasswordRequest request)
     {
-        var userId = userContext.GetUserId();
-        if (userId is null)
-        {
-            logger.LogWarning("Unauthorized attempt to send password reset email.");
-            return Unauthorized();
-        }
-
-        var result = await authService.SendPasswordResetEmail(userId);
+        var result = await authService.SendPasswordResetEmail(request);
         if (result.Succeeded)
         {
             return Ok(result);
         }
 
+        logger.LogWarning("Failed to send password reset token. Error: {Error}", result.Message);
         return BadRequest(result);
     }
 
