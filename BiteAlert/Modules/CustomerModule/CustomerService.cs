@@ -1,7 +1,6 @@
 ﻿using BiteAlert.Infrastructure.Data;
 using BiteAlert.Modules.Shared;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
 
 namespace BiteAlert.Modules.CustomerModule;
 
@@ -9,22 +8,40 @@ public class CustomerService(UserManager<ApplicationUser> userManager,
                              ApplicationDbContext context,
                              ILogger<CustomerService> logger) : ICustomerService
 {
-    public async Task<Customer?> GetCustomerById(string userId)
+    public async Task<BaseResponse> GetCustomerById(string userId)
     {
-        return await context.Customers.SingleOrDefaultAsync(
-            u => u.Id.ToString() == userId);
+        var customer = await context.Customers.FindAsync(userId);
+
+        if (customer is null)
+        {
+            logger.LogWarning("Customer not found. ID: {Id}", userId);
+            return new BaseResponse()
+            {
+                Succeeded = false,
+                Message = "Customer not found.",
+                Data = new {  userId }
+            };
+        }
+
+        return new BaseResponse()
+        {
+            Succeeded = true,
+            Message = "Success.",
+            Data = new { customer }
+        };
     }
 
-    public async Task<UpsertCustomerResponse> RegisterCustomerAsync(string userId)
+    public async Task<BaseResponse> RegisterCustomerAsync(string userId)
     {
         var user = await userManager.FindByIdAsync(userId);
         if (user is null)
         {
             logger.LogWarning("User with Id {Id} not found.", userId);
-            return new UpsertCustomerResponse()
+            return new BaseResponse()
             {
                 Succeeded = false,
-                Message = "User not found."
+                Message = "User not found.",
+                Data = new { userId }
             };
         }
 
@@ -32,10 +49,11 @@ public class CustomerService(UserManager<ApplicationUser> userManager,
         if (isCustomer is false)
         {
             logger.LogWarning("User is not a customer. User ID: {Id}", userId);
-            return new UpsertCustomerResponse()
+            return new BaseResponse()
             {
                 Succeeded = false,
-                Message = "User is not a customer."
+                Message = "User is not a customer.",
+                Data = new { userId }
             };
         }
 
@@ -50,10 +68,12 @@ public class CustomerService(UserManager<ApplicationUser> userManager,
         await context.Customers.AddAsync(customer);
         await context.SaveChangesAsync();
 
-        return new UpsertCustomerResponse()
+        // TODO: Create a customer response dto
+        return new BaseResponse()
         {
             Succeeded = true,
-            Message = "Customer registered successfully."
+            Message = "Customer registered successfully.",
+            Data = new { customer }
         };
     }
 }

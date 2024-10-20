@@ -1,8 +1,9 @@
-﻿
+﻿using BiteAlert.Modules.Shared;
+
 namespace BiteAlert.Modules.CustomerModule;
 
 public interface ICustomerService
 {
-    Task<UpsertCustomerResponse> RegisterCustomerAsync(string userId);
-    Task<Customer?> GetCustomerById(string userId);
+    Task<BaseResponse> RegisterCustomerAsync(string userId);
+    Task<BaseResponse> GetCustomerById(string userId);
 }

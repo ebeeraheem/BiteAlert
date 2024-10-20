@@ -51,15 +51,13 @@ public class CustomersController(ICustomerService customerService,
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetCustomerById(string customerId)
     {
-        var customer = await customerService.GetCustomerById(customerId);
+        var result = await customerService.GetCustomerById(customerId);
 
-        if (customer is null)
+        if (result.Succeeded is false)
         {
-            logger.LogWarning("Customer with Id {Id} not found", customerId);
-
-            return NotFound("Customer not found");
+            return BadRequest(result);
         }
 
-        return Ok(customer);
+        return Ok(result);
     }
 }
