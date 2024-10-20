@@ -64,16 +64,11 @@ public class ProductsController(IProductService productService,
 
         if (validationResult.IsValid is false)
         {
-            var failedResponse = new UpsertProductResponse()
+            var failedResponse = new BaseResponse()
             {
                 Succeeded = false,
                 Message = "Failed to create product.",
-                FluentValidationErrors = validationResult.Errors
-                    .Select(error => new FluentValidationError()
-                    {
-                        PropertyName = error.PropertyName,
-                        ErrorMessage = error.ErrorMessage
-                    })
+                Data = new { validationResult.Errors }
             };
 
             logger.LogWarning("Failed to create product due to validation errors. Errors: {Errors}",
@@ -91,14 +86,11 @@ public class ProductsController(IProductService productService,
             if (result.Succeeded)
             {
                 logger.LogInformation(
-                    "Product created successfully by vendor {VendorId}. Product ID: {ProductId}",
-                            vendorId,
-                            result.Product!.Id);
+                    "Product created successfully by vendor {VendorId}.",
+                            vendorId);
 
-                return CreatedAtAction(
-                    nameof(GetProduct),
-                    new { productId = result.Product!.Id },
-                    result.Product);
+                // TODO: Return 201 created
+                return Ok(result);
             }
 
             logger.LogWarning("Product creation failed. Error: {Error}", result.Message);
@@ -136,16 +128,11 @@ public class ProductsController(IProductService productService,
 
         if (validationResult.IsValid is false)
         {
-            var failedResponse = new UpsertProductResponse()
+            var failedResponse = new BaseResponse()
             {
                 Succeeded = false,
                 Message = "Failed to update product.",
-                FluentValidationErrors = validationResult.Errors
-                    .Select(error => new FluentValidationError()
-                    {
-                        PropertyName = error.PropertyName,
-                        ErrorMessage = error.ErrorMessage
-                    })
+                Data = new { validationResult.Errors }
             };
 
             logger.LogWarning("Failed to update product due to validation errors. Errors: {Errors}",
