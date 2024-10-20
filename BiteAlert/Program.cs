@@ -38,7 +38,8 @@ builder.Services.AddCustomServices();
 var app = builder.Build();
 
 // Seed roles and default admin user
-await app.UseSeeding(builder.Configuration);
+await app.Services.SeedRoles();
+await app.Services.SeedAdminUser();
 
 // Configure the HTTP request pipeline.
 app.UseSwagger();
