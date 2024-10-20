@@ -29,16 +29,11 @@ public class AuthController(IAuthService authService,
 
         if (validationResult.IsValid is false)
         {
-            var failedResponse = new AuthResponse
+            var failedResponse = new BaseResponse
             {
                 Succeeded = false,
                 Message = "User registration failed.",
-                FluentValidationErrors = validationResult.Errors
-                    .Select(error => new FluentValidationError
-                    {
-                        PropertyName = error.PropertyName,
-                        ErrorMessage = error.ErrorMessage
-                    })
+                Data = new { validationResult.Errors }
             };
 
             logger.LogWarning("Register user request failed validation. Errors: {Errors}",
@@ -85,16 +80,11 @@ public class AuthController(IAuthService authService,
 
         if (validationResult.IsValid is false)
         {
-            var failedResponse = new AuthResponse
+            var failedResponse = new BaseResponse
             {
                 Succeeded = false,
                 Message = "User login failed.",
-                FluentValidationErrors = validationResult.Errors
-                    .Select(error => new FluentValidationError
-                    {
-                        PropertyName = error.PropertyName,
-                        ErrorMessage = error.ErrorMessage
-                    })
+                Data = new { validationResult.Errors }
             };
 
             logger.LogWarning("Login user request failed validation. Errors: {Errors}",
@@ -273,16 +263,11 @@ public class AuthController(IAuthService authService,
 
         if (validationResult.IsValid is false)
         {
-            var failedResponse = new AuthResponse
+            var failedResponse = new BaseResponse
             {
                 Succeeded = false,
                 Message = "Password reset failed.",
-                FluentValidationErrors = validationResult.Errors
-                    .Select(error => new FluentValidationError
-                    {
-                        PropertyName = error.PropertyName,
-                        ErrorMessage = error.ErrorMessage
-                    })
+                Data = new { validationResult.Errors }
             };
 
             logger.LogWarning("Password reset request failed validation. Errors: {Errors}",
