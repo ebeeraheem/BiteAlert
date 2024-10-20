@@ -1,9 +1,11 @@
-﻿namespace BiteAlert.Modules.UserModule;
+﻿using BiteAlert.Modules.Shared;
+
+namespace BiteAlert.Modules.UserModule;
 
 public interface IUserService
 {
-    Task<UserProfileResponse> SelectRoleAsync(string userId, string roleName);
-    Task<UserProfileResponse> UpdateProfileAsync(string userId, UserProfileRequest request);
-    Task<UserProfileResponse> UpdateEmailAsync();
-    Task<UserProfileResponse> DeleteUserAccount();
+    Task<BaseResponse> SelectRoleAsync(string userId, string roleName);
+    Task<BaseResponse> UpdateProfileAsync(string userId, UserProfileRequest request);
+    Task<BaseResponse> UpdateEmailAsync();
+    Task<BaseResponse> DeleteUserAccount();
 }

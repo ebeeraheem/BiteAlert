@@ -1,11 +1,11 @@
-﻿using BiteAlert.Modules.Shared.PagedResult;
+﻿using BiteAlert.Modules.Shared;
 
 namespace BiteAlert.Modules.VendorModule;
 
 public interface IVendorService
 {
-    Task<UpsertVendorResponse> RegisterVendorAsync(string userId, UpsertVendorRequest request);
-    Task<Vendor?> GetVendorByIdAsync(string vendorId);
-    Task<PagedResult<Vendor>> GetVendorsByUserNameAsync(string userName, int pageNumber, int pageSize);
-    Task<UpsertVendorResponse> UpdateVendorBusinessInfo(string vendorId, UpsertVendorRequest request);
+    Task<BaseResponse> RegisterVendorAsync(string userId, UpsertVendorRequest request);
+    Task<BaseResponse> GetVendorByIdAsync(string vendorId);
+    Task<BaseResponse> GetVendorsByUserNameAsync(string userName, int pageNumber, int pageSize);
+    Task<BaseResponse> UpdateVendorBusinessInfo(string vendorId, UpsertVendorRequest request);
 }

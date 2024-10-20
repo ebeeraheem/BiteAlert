@@ -29,16 +29,11 @@ public class AuthController(IAuthService authService,
 
         if (validationResult.IsValid is false)
         {
-            var failedResponse = new AuthResponse
+            var failedResponse = new Shared.BaseResponse
             {
                 Succeeded = false,
                 Message = "User registration failed.",
-                FluentValidationErrors = validationResult.Errors
-                    .Select(error => new FluentValidationError
-                    {
-                        PropertyName = error.PropertyName,
-                        ErrorMessage = error.ErrorMessage
-                    })
+                Data = new { validationResult.Errors }
             };
 
             logger.LogWarning("Register user request failed validation. Errors: {Errors}",
@@ -51,7 +46,7 @@ public class AuthController(IAuthService authService,
         {
             var result = await authService.RegisterUserAsync(request);
 
-            if (result.IdentityErrors is null)
+            if (result.Succeeded)
             {
                 logger.LogInformation("User successfully registered with email: {Email}", request.Email);
 
@@ -60,7 +55,7 @@ public class AuthController(IAuthService authService,
 
             logger.LogWarning("User registration failed with email: {Email}. Errors: {@Errors}",
                         request.Email,
-                        result.IdentityErrors);
+                        result.Data);
 
             return BadRequest(result);
         }
@@ -85,16 +80,11 @@ public class AuthController(IAuthService authService,
 
         if (validationResult.IsValid is false)
         {
-            var failedResponse = new AuthResponse
+            var failedResponse = new Shared.BaseResponse
             {
                 Succeeded = false,
                 Message = "User login failed.",
-                FluentValidationErrors = validationResult.Errors
-                    .Select(error => new FluentValidationError
-                    {
-                        PropertyName = error.PropertyName,
-                        ErrorMessage = error.ErrorMessage
-                    })
+                Data = new { validationResult.Errors }
             };
 
             logger.LogWarning("Login user request failed validation. Errors: {Errors}",
@@ -109,7 +99,7 @@ public class AuthController(IAuthService authService,
 
             var result = await authService.LoginUserAsync(request);
 
-            if (result.Token is null)
+            if (result.Succeeded is false)
             {
                 logger.LogWarning("Failed to login user with email: {Email}. Error: {Error}",
                             request.Email,
@@ -227,7 +217,7 @@ public class AuthController(IAuthService authService,
 
         logger.LogWarning("Failed to update password for user with Id {Id}. Errors: {@Errors}",
                     userId,
-                    result.IdentityErrors);
+                    result.Data);
 
         return BadRequest(result);
     }
@@ -268,16 +258,11 @@ public class AuthController(IAuthService authService,
 
         if (validationResult.IsValid is false)
         {
-            var failedResponse = new AuthResponse
+            var failedResponse = new Shared.BaseResponse
             {
                 Succeeded = false,
                 Message = "Password reset failed.",
-                FluentValidationErrors = validationResult.Errors
-                    .Select(error => new FluentValidationError
-                    {
-                        PropertyName = error.PropertyName,
-                        ErrorMessage = error.ErrorMessage
-                    })
+                Data = new { validationResult.Errors }
             };
 
             logger.LogWarning("Password reset request failed validation. Errors: {Errors}",

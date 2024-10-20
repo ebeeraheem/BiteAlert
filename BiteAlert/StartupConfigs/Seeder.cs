@@ -3,13 +3,14 @@
 using BiteAlert.Infrastructure.Data;
 using BiteAlert.Modules.Shared;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using System.Globalization;
 
 namespace BiteAlert.StartupConfigs;
 
 public static class Seeder
 {
-    public static async Task SeedRoles(IServiceProvider serviceProvider)
+    public static async Task SeedRoles(this IServiceProvider serviceProvider)
     {
         using var scope = serviceProvider.CreateScope();
 
@@ -25,85 +26,36 @@ public static class Seeder
         }
     }
 
-    public static async Task SeedAdminUser(IServiceProvider serviceProvider,
-                                           IConfiguration config,
-                                           ApplicationDbContext context)
+    public static async Task SeedAdminUser(this IServiceProvider serviceProvider)
     {
         using var scope = serviceProvider.CreateScope();
-        var userManager = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
 
-        // Retrieve configuration values
-        var adminEmail = config["SeedData:Email"];
-        var adminFirstName = config["SeedData:FirstName"];
-        var adminLastName = config["SeedData:LastName"];
-        var adminUserName = config["SeedData:UserName"];
-        var adminPassword = config["SeedData:Password"];
-        var adminPhoneNumber = config["SeedData:PhoneNumber"];
-        var adminDateOfBirth = config["SeedData:DateOfBirth"];
+        var userManager = scope.ServiceProvider
+            .GetRequiredService<UserManager<ApplicationUser>>();
 
-        // Check if email is provided
-        if (string.IsNullOrWhiteSpace(adminEmail))
-        {
-            // Log: Email is required but not provided
-            return;
-        }
-
-        // Check if the admin user already exists
-        var admin = await userManager.FindByEmailAsync(adminEmail);
-
-        if (admin != null)
-        {
-            // Log: Admin user already exists
-            return;
-        }
-
-        // Ensure all required fields are provided
-        if (string.IsNullOrWhiteSpace(adminFirstName) ||
-            string.IsNullOrWhiteSpace(adminLastName) ||
-            string.IsNullOrWhiteSpace(adminUserName) ||
-            string.IsNullOrWhiteSpace(adminPassword) ||
-            string.IsNullOrWhiteSpace(adminPhoneNumber) ||
-            string.IsNullOrWhiteSpace(adminDateOfBirth))
-        {
-            // Log: Insufficient information to create a new admin
-            return;
-        }
-
-        // Create the new admin user
+        // Create the default admin user
         var user = new ApplicationUser
         {
-            FirstName = adminFirstName,
-            LastName = adminLastName,
-            UserName = adminUserName,
-            PhoneNumber = adminPhoneNumber,
+            FirstName = "Ibrahim",
+            LastName = "Suleiman",
+            UserName = "ebeeraheem@gmail.com",
+            PhoneNumber = "08143660104",
             PhoneNumberConfirmed = true,
-            Email = adminEmail,
+            Email = "ebeeraheem@gmail.com",
             EmailConfirmed = true,
-            DateOfBirth = DateTime.Parse(adminDateOfBirth, new CultureInfo("en-US")),
+            DateOfBirth = DateTime.Parse("Jan 4, 1999", new CultureInfo("en-US")),
             CreatedAt = DateTime.UtcNow,
             LastUpdatedAt = DateTime.UtcNow
         };
 
-        var result = await userManager.CreateAsync(user, adminPassword);
-
-        if (result.Succeeded)
+        if (!await userManager.Users.AnyAsync(u => u.Email.Equals(user.Email)))
         {
-            await userManager.AddToRoleAsync(user, "Admin");
-            await context.SaveChangesAsync();
-            // Log: Admin user created and assigned role successfully
-        }
-        else
-        {
-            // Log: Failed to create admin user, reason(s): {string.Join(", ", result.Errors.Select(e => e.Description))}
-        }
-    }
+            var result = await userManager.CreateAsync(user, "string!1Q");
 
-    public static async Task UseSeeding(this WebApplication app, IConfiguration config)
-    {
-        using var scope = app.Services.CreateScope();
-        var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-
-        await SeedRoles(scope.ServiceProvider);
-        await SeedAdminUser(scope.ServiceProvider, config, context);
+            if (result.Succeeded)
+            {
+                await userManager.AddToRoleAsync(user, "Admin");
+            }
+        }
     }
 }

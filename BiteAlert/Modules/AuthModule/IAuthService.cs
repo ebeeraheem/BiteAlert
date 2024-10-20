@@ -1,13 +1,15 @@
 ﻿// Ignore Spelling: Auth
 
+using BiteAlert.Modules.Shared;
+
 namespace BiteAlert.Modules.AuthModule;
 public interface IAuthService
 {
-    Task<AuthResponse> RegisterUserAsync(RegisterUserRequest request);
-    Task<AuthResponse> LoginUserAsync(LoginUserRequest request);
-    Task<AuthResponse> UpdatePasswordAsync(string userId, UpdatePasswordRequest request);
-    Task<AuthResponse> SendPasswordResetEmail(ForgotPasswordRequest request);
-    Task<AuthResponse> ResetPasswordAsync(PasswordResetRequest request);
-    Task<AuthResponse> SendVerificationEmailAsync(string userId);
-    Task<AuthResponse> VerifyEmailAsync(string userId, string token);
+    Task<BaseResponse> RegisterUserAsync(RegisterUserRequest request);
+    Task<BaseResponse> LoginUserAsync(LoginUserRequest request);
+    Task<BaseResponse> UpdatePasswordAsync(string userId, UpdatePasswordRequest request);
+    Task<BaseResponse> SendPasswordResetEmail(string userId);
+    Task<BaseResponse> ResetPasswordAsync(PasswordResetRequest request);
+    Task<BaseResponse> SendVerificationEmailAsync(string userId);
+    Task<BaseResponse> VerifyEmailAsync(string userId, string token);
 }

@@ -1,5 +1,4 @@
 ﻿using Asp.Versioning;
-using BiteAlert.Modules.Shared;
 using BiteAlert.Modules.Utilities;
 using FluentValidation;
 using Microsoft.AspNetCore.Mvc;
@@ -63,12 +62,7 @@ public class UsersController(IUserService userService,
             {
                 Succeeded = false,
                 Message = "Failed to update profile.",
-                FluentValidationErrors = validationResult.Errors
-                    .Select(error => new FluentValidationError()
-                    {
-                        PropertyName = error.PropertyName,
-                        ErrorMessage = error.ErrorMessage
-                    })
+                Data = new { validationResult.Errors }
             };
 
             logger.LogWarning("User profile request failed validation. Errors: {Errors}",
