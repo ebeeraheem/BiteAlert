@@ -35,12 +35,7 @@ public class VendorsController(IVendorService vendorService,
             {
                 Succeeded = false,
                 Message = "Failed to register vendor.",
-                FluentValidationErrors = validationResult.Errors
-                    .Select(error => new FluentValidationError()
-                    {
-                        PropertyName = error.PropertyName,
-                        ErrorMessage = error.ErrorMessage
-                    })
+                Data = new { validationResult.Errors }
             };
             logger.LogWarning("Register vendor request failed validation. Errors: {Errors}",
                         validationResult);
