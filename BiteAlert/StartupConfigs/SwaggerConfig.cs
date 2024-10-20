@@ -19,7 +19,7 @@ public static class SwaggerConfig
                 Description = "An API that alerts users of delicacy availability from vendors they are following.",
                 Contact = new OpenApiContact()
                 {
-                    Name = "Ibrahim SUleiman",
+                    Name = "Ibrahim Suleiman",
                     Email = "ebeeraheem@gmail.com",
                     Url = new Uri(_website)
                 }
