@@ -46,7 +46,7 @@ public class AuthController(IAuthService authService,
         {
             var result = await authService.RegisterUserAsync(request);
 
-            if (result.IdentityErrors is null)
+            if (result.Succeeded)
             {
                 logger.LogInformation("User successfully registered with email: {Email}", request.Email);
 
@@ -55,7 +55,7 @@ public class AuthController(IAuthService authService,
 
             logger.LogWarning("User registration failed with email: {Email}. Errors: {@Errors}",
                         request.Email,
-                        result.IdentityErrors);
+                        result.Data);
 
             return BadRequest(result);
         }
@@ -99,7 +99,7 @@ public class AuthController(IAuthService authService,
 
             var result = await authService.LoginUserAsync(request);
 
-            if (result.Token is null)
+            if (result.Succeeded is false)
             {
                 logger.LogWarning("Failed to login user with email: {Email}. Error: {Error}",
                             request.Email,
@@ -217,7 +217,7 @@ public class AuthController(IAuthService authService,
 
         logger.LogWarning("Failed to update password for user with Id {Id}. Errors: {@Errors}",
                     userId,
-                    result.IdentityErrors);
+                    result.Data);
 
         return BadRequest(result);
     }
