@@ -29,7 +29,7 @@ public class AuthController(IAuthService authService,
 
         if (validationResult.IsValid is false)
         {
-            var failedResponse = new BaseResponse
+            var failedResponse = new Shared.BaseResponse
             {
                 Succeeded = false,
                 Message = "User registration failed.",
@@ -80,7 +80,7 @@ public class AuthController(IAuthService authService,
 
         if (validationResult.IsValid is false)
         {
-            var failedResponse = new BaseResponse
+            var failedResponse = new Shared.BaseResponse
             {
                 Succeeded = false,
                 Message = "User login failed.",
@@ -263,7 +263,7 @@ public class AuthController(IAuthService authService,
 
         if (validationResult.IsValid is false)
         {
-            var failedResponse = new BaseResponse
+            var failedResponse = new Shared.BaseResponse
             {
                 Succeeded = false,
                 Message = "Password reset failed.",

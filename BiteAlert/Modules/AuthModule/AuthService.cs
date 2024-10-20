@@ -20,76 +20,66 @@ public class AuthService(ApplicationDbContext context,
                          IConfiguration config,
                          ILogger<AuthService> logger) : IAuthService
 {
-    public async Task<AuthResponse> RegisterUserAsync(RegisterUserRequest request)
+    public async Task<Shared.BaseResponse> RegisterUserAsync(RegisterUserRequest request)
     {
         var transaction = await context.Database
             .BeginTransactionAsync();
 
-        try
+        var user = new ApplicationUser()
         {
-            var user = new ApplicationUser()
-            {
-                UserName = request.UserName,
-                Email = request.Email,
-                CreatedAt = DateTime.UtcNow,
-                LastUpdatedAt = DateTime.UtcNow
-            };
+            UserName = request.UserName,
+            Email = request.Email,
+            CreatedAt = DateTime.UtcNow,
+            LastUpdatedAt = DateTime.UtcNow
+        };
 
-            logger.LogInformation("Attempting to register user with email: {Email}", request.Email);
+        logger.LogInformation("Attempting to register user with email: {Email}", request.Email);
 
-            var result = await userManager.CreateAsync(user, request.Password);
+        var result = await userManager.CreateAsync(user, request.Password);
 
-            if (result.Succeeded is false)
-            {
-                var failedResponse = new AuthResponse()
-                {
-                    Succeeded = false,
-                    Message = "User registration failed.",
-                    IdentityErrors = result.Errors
-                };
-
-                await transaction.RollbackAsync();
-                return failedResponse;
-            }
-
-            // Generate email verification token
-            var emailConfirmationToken = await userManager.GenerateEmailConfirmationTokenAsync(user);
-
-            // Publish user registered event
-            logger.LogInformation("Publishing user registered event.");
-            await mediator.Publish(new UserRegisteredEvent
-            {
-                UserId = user.Id,
-                UserName = user.UserName,
-                Email = user.Email,
-                EmailConfirmationToken = emailConfirmationToken
-            });
-
-            // Login and generate token
-            await signInManager.PasswordSignInAsync(user, request.Password, false, false);
-            string tokenString = GenerateJwtToken(user);
-
-            var successResponse = new AuthResponse()
-            {
-                Succeeded = true,
-                Message = "User registered successfully.",
-                Token = tokenString
-            };
-
-            await transaction.CommitAsync();
-            return successResponse;
-        }
-        catch (Exception ex)
+        if (result.Succeeded is false)
         {
-            logger.LogError(ex, "An unexpected error occurred during user registration with email: {Email}",
-                        request.Email);
+            var failedResponse = new BaseResponse()
+            {
+                Succeeded = false,
+                Message = "User registration failed.",
+                Data = result.Errors
+            };
 
             await transaction.RollbackAsync();
-            throw;
+            return failedResponse;
         }
+
+        var emailConfirmationToken = await userManager
+            .GenerateEmailConfirmationTokenAsync(user);
+
+        // Publish user registered event
+        logger.LogInformation("Publishing user registered event.");
+        await mediator.Publish(new UserRegisteredEvent
+        {
+            UserId = user.Id,
+            UserName = user.UserName,
+            Email = user.Email,
+            EmailConfirmationToken = emailConfirmationToken
+        });
+
+        // Login and generate token
+        await signInManager.PasswordSignInAsync(user, request.Password, false, false);
+
+        string tokenString = GenerateJwtToken(user);
+
+        var successResponse = new BaseResponse()
+        {
+            Succeeded = true,
+            Message = "User registered successfully.",
+            Data = new { tokenString }
+        };
+
+        await transaction.CommitAsync();
+        return successResponse;
     }
 
-    public async Task<AuthResponse> LoginUserAsync(LoginUserRequest request)
+    public async Task<BaseResponse> LoginUserAsync(LoginUserRequest request)
     {
         var user = await userManager.FindByEmailAsync(request.Email);
 
@@ -97,10 +87,11 @@ public class AuthService(ApplicationDbContext context,
         {
             logger.LogWarning("User with email {Email} not found.", request.Email);
 
-            return new AuthResponse()
+            return new BaseResponse()
             {
                 Succeeded = false,
-                Message = "User not found."
+                Message = "User not found.",
+                Data = new { request.Email }
             };
         }
 
@@ -115,10 +106,11 @@ public class AuthService(ApplicationDbContext context,
         {
             logger.LogWarning("Invalid login credentials for email {Email}", user.Email);
 
-            return new AuthResponse()
+            return new BaseResponse()
             {
                 Succeeded = false,
-                Message = "Invalid credentials."
+                Message = "Invalid credentials.",
+                Data = new { request.Email }
             };
         }
 
@@ -128,17 +120,17 @@ public class AuthService(ApplicationDbContext context,
 
         logger.LogInformation("Successfully generated JWT token for user with email: {Email}", user.Email);
 
-        var response = new AuthResponse()
+        var response = new BaseResponse()
         {
             Succeeded = true,
             Message = "User logged in successfully.",
-            Token = tokenString
+            Data = new { tokenString }
         };
 
         return response;
     }
 
-    public async Task<AuthResponse> UpdatePasswordAsync(string userId, UpdatePasswordRequest request)
+    public async Task<BaseResponse> UpdatePasswordAsync(string userId, UpdatePasswordRequest request)
     {
         var user = await userManager.FindByIdAsync(userId);
 
@@ -146,10 +138,11 @@ public class AuthService(ApplicationDbContext context,
         {
             logger.LogWarning("User with Id {Id} not found", userId);
 
-            return new AuthResponse()
+            return new BaseResponse()
             {
                 Succeeded = false,
-                Message = "User not found."
+                Message = "User not found.",
+                Data = new { userId }
             };
         }
 
@@ -161,31 +154,33 @@ public class AuthService(ApplicationDbContext context,
 
         if (result.Succeeded is false)
         {
-            return new AuthResponse()
+            return new BaseResponse()
             {
                 Succeeded = false,
                 Message = "Failed to update password.",
-                IdentityErrors = result.Errors
+                Data = new { result.Errors }
             };
         }
 
-        return new AuthResponse()
+        return new BaseResponse()
         {
             Succeeded = true,
-             Message = "Password updated successfully."
+            Message = "Password updated successfully.",
+            Data = new { user.Id }
         };
     }
 
-    public async Task<AuthResponse> SendPasswordResetEmail(string userId)
+    public async Task<BaseResponse> SendPasswordResetEmail(string userId)
     {
         var user = await userManager.FindByIdAsync(userId);
         if (user is null)
         {
             logger.LogWarning("User with Id {Id} not found", userId);
-            return new AuthResponse()
+            return new BaseResponse()
             {
                 Succeeded = false,
-                Message = "User not found."
+                Message = "User not found.",
+                Data = new { userId }
             };
         }
 
@@ -199,24 +194,26 @@ public class AuthService(ApplicationDbContext context,
             PasswordResetToken = passwordResetToken
         });
 
-        return new AuthResponse()
+        return new BaseResponse()
         {
             Succeeded = true,
-            Message = "Password reset token sent successfully."
+            Message = "Password reset token sent successfully.",
+            Data = new { user.Id }
         };
     }
 
-    public async Task<AuthResponse> ResetPasswordAsync(PasswordResetRequest request)
+    public async Task<BaseResponse> ResetPasswordAsync(PasswordResetRequest request)
     {
         var user = await userManager.FindByIdAsync(request.UserId);
         if (user is null)
         {
             logger.LogWarning("User not found. User ID: {Id}", request.UserId);
 
-            return new AuthResponse()
+            return new BaseResponse()
             {
                 Succeeded = false,
-                Message = "User not found."
+                Message = "User not found.",
+                Data = new { request.UserId }
             };
         }
 
@@ -228,22 +225,23 @@ public class AuthService(ApplicationDbContext context,
 
         if (result.Succeeded is false)
         {
-            return new AuthResponse
+            return new BaseResponse
             {
                 Succeeded = false,
                 Message = "Password reset failed.",
-                IdentityErrors = result.Errors
+                Data = new { result.Errors }
             };
         }
 
-        return new AuthResponse()
+        return new BaseResponse()
         {
             Succeeded = true,
-            Message = "Password reset successful."
+            Message = "Password reset successful.",
+            Data = new { user.Id }
         };
     }
 
-    public async Task<AuthResponse> VerifyEmailAsync(string userId, string token)
+    public async Task<BaseResponse> VerifyEmailAsync(string userId, string token)
     {
         var user = await userManager.FindByIdAsync(userId);
 
@@ -251,10 +249,11 @@ public class AuthService(ApplicationDbContext context,
         {
             logger.LogWarning("User not found. User ID: {Id}", userId);
 
-            return new AuthResponse()
+            return new BaseResponse()
             {
                 Succeeded = false,
-                Message = "User not found."
+                Message = "User not found.",
+                Data = new { userId }
             };
         }
 
@@ -262,22 +261,23 @@ public class AuthService(ApplicationDbContext context,
 
         if (result.Succeeded is false)
         {
-            return new AuthResponse
+            return new BaseResponse
             {
                 Succeeded = false,
                 Message = "Email confirmation failed.",
-                IdentityErrors = result.Errors
+                Data = new { result.Errors }
             };
         }
 
-        return new AuthResponse()
+        return new BaseResponse()
         {
             Succeeded = true,
-            Message = "Email confirmed successfully."
+            Message = "Email confirmed successfully.",
+            Data = new { userId }
         };
     }
 
-    public async Task<AuthResponse> SendVerificationEmailAsync(string userId)
+    public async Task<BaseResponse> SendVerificationEmailAsync(string userId)
     {
         var user = await userManager.FindByIdAsync(userId);
 
@@ -285,19 +285,21 @@ public class AuthService(ApplicationDbContext context,
         {
             logger.LogWarning("User with Id {Id} not found", userId);
 
-            return new AuthResponse()
+            return new BaseResponse()
             {
                 Succeeded = false,
-                Message = "User not found."
+                Message = "User not found.",
+                Data = new { userId }
             };
         }
 
         if (await userManager.IsEmailConfirmedAsync(user))
         {
-            return new AuthResponse()
+            return new BaseResponse()
             {
                 Succeeded = false,
-                Message = "Email is already confirmed."
+                Message = "Email is already confirmed.",
+                Data = new { userId }
             };
         }
 
@@ -311,10 +313,11 @@ public class AuthService(ApplicationDbContext context,
             EmailConfirmationToken = emailConfirmationToken
         });
 
-        return new AuthResponse()
+        return new BaseResponse()
         {
             Succeeded = true,
-            Message = "Confirmation email sent successfully."
+            Message = "Confirmation email sent successfully.",
+            Data = new { userId }
         };
     }
 
