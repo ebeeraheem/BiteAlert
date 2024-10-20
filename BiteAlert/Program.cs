@@ -31,7 +31,7 @@ builder.Services.AddDbContext<ApplicationDbContext>(
     options => options.UseSqlServer(
         builder.Configuration.GetConnectionString("DefaultConnection")));
 
-builder.Services.AddSwaggerConfigurations(builder.Configuration);
+builder.Services.AddSwaggerConfigurations();
 builder.Services.AddJwtAuthentication(builder.Configuration);
 builder.Services.AddCustomServices();
 

@@ -5,28 +5,23 @@ namespace BiteAlert.StartupConfigs;
 
 public static class SwaggerConfig
 {
-    public static void AddSwaggerConfigurations(this IServiceCollection services, IConfiguration configuration)
-    {
-        // Get swagger config values from appsettings.json
-        var title = configuration.GetSection("SwaggerDoc:Title").Value;
-        var description = configuration.GetSection("SwaggerDoc:Description").Value;
-        var name = configuration.GetSection("SwaggerDoc:Contact:Name").Value;
-        var email = configuration.GetSection("SwaggerDoc:Contact:Email").Value;
-        var url = configuration.GetSection("SwaggerDoc:Contact:Url").Value;
+    private const string _website = "https://ebeesule.netlify.app";
 
+    public static void AddSwaggerConfigurations(this IServiceCollection services)
+    {
         services.AddSwaggerGen(options =>
         {
             // Add the API info and description
             options.SwaggerDoc("v1", new OpenApiInfo()
             {
                 Version = "v1",
-                Title = title,
-                Description = description,
+                Title = "Bite Alert API",
+                Description = "An API that alerts users of delicacy availability from vendors they are following.",
                 Contact = new OpenApiContact()
                 {
-                    Name = name,
-                    Email = email,
-                    Url = new Uri(url!)
+                    Name = "Ibrahim SUleiman",
+                    Email = "ebeeraheem@gmail.com",
+                    Url = new Uri(_website)
                 }
             });
 
